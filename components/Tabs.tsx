@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import TabButtons, { TabButtonsProps } from './TabButtons';
 
 export default function Tabs() {
-    const [active, setActive] = useState('Menu')
-    type TabButtonWithoutActive = Omit<TabButtonsProps, 'active'>;
+    const [active, setActive] = useState('')
+    type TabButtonWithoutActiveAnsSetActive = Omit<TabButtonsProps, 'active' | 'setActive'>;
 
-    const paths: TabButtonWithoutActive[] = [
+    const paths: TabButtonWithoutActiveAnsSetActive[] = [
     { label: 'Menu', destination: '/' },
     { label: 'Cart', destination: '/(protected)/cart' },
     { label: 'Profile', destination: '/(protected)/profile' },
@@ -16,7 +16,7 @@ export default function Tabs() {
   return (
     <View className='h-[10%] flex flex-row justify-evenly items-center px-4'>
       {paths.map((path, index) => (
-        <TabButtons key={index} label={path.label} destination={path.destination} active={active}/>
+        <TabButtons key={index} label={path.label} destination={path.destination} active={active} setActive={setActive}/>
       ))}
     </View>
   )

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 export default function checkout() {
   return (
-    <View>
+    <View className='flex-1'>
       <Text>checkout</Text>
     </View>
   )

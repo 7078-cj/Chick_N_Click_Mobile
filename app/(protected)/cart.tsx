@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 export default function cart() {
   return (
-    <View>
+    <View className='flex-1'>
       <Text>cart</Text>
     </View>
   )

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 export default function profile() {
   return (
-    <View>
+    <View className='flex-1'>
       <Text>profile</Text>
     </View>
   )
