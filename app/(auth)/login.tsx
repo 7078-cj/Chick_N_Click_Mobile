@@ -46,12 +46,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-100 justify-center px-6">
-      <Text className="text-3xl font-bold text-center mb-8 text-gray-800">Welcome Back</Text>
+    <View className="justify-center flex-1 px-6 bg-gray-100">
+      <Text className="mb-8 text-3xl font-bold text-center text-gray-800">Welcome Back</Text>
 
       {/* Email Input */}
       <View className="mb-4">
-        <Text className="text-gray-600 mb-2">Email</Text>
+        <Text className="mb-2 text-gray-600">Email</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}
@@ -62,18 +62,18 @@ export default function LoginScreen() {
             emailError ? 'border-red-500' : 'border-gray-300'
           }`}
         />
-        {emailError ? <Text className="text-red-500 mt-1">{emailError}</Text> : null}
+        {emailError ? <Text className="mt-1 text-red-500">{emailError}</Text> : null}
       </View>
 
       {/* Password Input */}
-      <View className="mb-6 relative">
-        <Text className="text-gray-600 mb-2">Password</Text>
+      <View className="relative mb-6">
+        <Text className="mb-2 text-gray-600">Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
           placeholder="Enter your password"
           secureTextEntry={!showPassword}
-          className="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-300 pr-12"
+          className="px-4 py-3 pr-12 bg-white border border-gray-300 rounded-lg shadow-sm"
         />
         <TouchableOpacity
           className="absolute right-3 top-10"
@@ -93,16 +93,16 @@ export default function LoginScreen() {
         className={`bg-blue-600 py-3 rounded-lg ${loading ? 'opacity-50' : 'opacity-100'}`}
         disabled={loading}
       >
-        <Text className="text-white text-center font-semibold text-lg">
+        <Text className="text-lg font-semibold text-center text-white">
           {loading ? 'Logging in...' : 'Login'}
         </Text>
       </TouchableOpacity>
 
       {/* Sign Up Link */}
-      <View className="mt-4 flex-row justify-center">
+      <View className="flex-row justify-center mt-4">
         <Text className="text-gray-600">Don't have an account? </Text>
         <TouchableOpacity onPress={() => Alert.alert('Redirect', 'Go to Sign Up')}>
-          <Text className="text-blue-600 font-semibold">Sign Up</Text>
+          <Text className="font-semibold text-blue-600">Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
