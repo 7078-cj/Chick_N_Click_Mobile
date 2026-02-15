@@ -11,6 +11,7 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { token, user } = useContext(AuthContext) as {
     token: string | null;
@@ -25,14 +26,13 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
 
  
   useEffect(() => {
-    if (!token || hasLoadedRef.current) return;
-    hasLoadedRef.current = true;
+    
+    setIsLoading(true);
 
     (async () => {
       try {
        
         const catRes = await fetch(`${preUrl}/api/category`, {
-          headers: { Authorization: `Bearer ${token}` },
         });
         const catData: { id: number; name: string }[] = await catRes.json();
 
@@ -47,22 +47,20 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
 
         
         const foodRes = await fetch(`${preUrl}/api/foods`, {
-          headers: { Authorization: `Bearer ${token}` },
         });
         const foodData: Food[] = await foodRes.json();
-        console.log(foodData)
         setFoods(foodData);
+        setIsLoading(false)
       } catch (err) {
         console.error("Failed to load initial data", err);
       }
     })();
-  }, [token, preUrl]);
+  }, [preUrl]);
 
  
   useEffect(() => {
-    if (!token || !user) return;
 
-    const ws = new WebSocket(`${wsUrl}/ws/food/${user.id}`);
+    const ws = new WebSocket(`${wsUrl}/ws/food`);
     wsRef.current = ws;
 
     ws.onmessage = (event: MessageEvent) => {
@@ -131,6 +129,7 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
         setSelectedCategory,
         filteredFoods,
         resetFilters,
+        isLoading,
       }}
     >
       {children}

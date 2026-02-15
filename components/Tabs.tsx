@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useTab } from '@/hooks/useTab';
+import React from 'react';
 import { View } from 'react-native';
 import TabButtons, { TabButtonsProps } from './TabButtons';
 
 export default function Tabs() {
-    const [active, setActive] = useState('')
     type TabButtonWithoutActiveAnsSetActive = Omit<TabButtonsProps, 'active' | 'setActive'>;
 
     const paths: TabButtonWithoutActiveAnsSetActive[] = [
@@ -16,7 +16,7 @@ export default function Tabs() {
   return (
     <View className='h-[10%] flex flex-row justify-evenly items-center px-4'>
       {paths.map((path, index) => (
-        <TabButtons key={index} label={path.label} destination={path.destination} active={active} setActive={setActive}/>
+        <TabButtons key={index} label={path.label} destination={path.destination}/>
       ))}
     </View>
   )

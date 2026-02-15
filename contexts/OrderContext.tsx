@@ -3,15 +3,9 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import AuthContext from "./AuthContext";
 
 
-
-// ----------------------
-// Context
-// ----------------------
 export const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-// ----------------------
-// Provider
-// ----------------------
+
 export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const { token, user } = useContext(AuthContext) as { token: string | null; user: { id: number } | null };
   const [orders, setOrders] = useState<Order[]>([]);

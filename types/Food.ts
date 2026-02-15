@@ -46,6 +46,7 @@ export type FoodContextType = {
   setSelectedCategory: React.Dispatch<React.SetStateAction<string | null>>;
   filteredFoods: Food[];
   resetFilters: () => void;
+  isLoading: boolean;
 }
 
 export type FoodProviderProps = {
