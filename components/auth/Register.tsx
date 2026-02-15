@@ -1,12 +1,12 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React from 'react';
+import { Text, View } from 'react-native';
+import MapComponent from '../MapComponent';
 
 export default function Register() {
   return (
-    <View>
-      <Text>register</Text>
+    <View className="">
+      <Text className="p-2 text-lg text-black">Register</Text>
+      <MapComponent />
     </View>
-  )
+  );
 }
-
-const styles = StyleSheet.create({})
