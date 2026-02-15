@@ -1,29 +1,28 @@
 import AuthContext from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useContext, useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+type LoginProps = {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-export default function LoginScreen() {
+export default function Login({ setVisible }: LoginProps) {
   const auth = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [error, setError] = useState('');
 
   if (!auth) return null; // Context not ready
 
-  // Email validation regex
-  const validateEmail = (email: string) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-  };
+  const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
   const handleLogin = async () => {
-    // Check email
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+      setError('Please enter both email and password.');
       return;
     }
 
@@ -36,18 +35,36 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await auth.loginUser({ email, password });
-      Alert.alert('Success', 'You are logged in!');
+      const res = await auth.loginUser({ email, password });
+      if (res === 'The credential are wrong') {
+        setError(res);
+      } else {
+        setVisible(false);
+      }
     } catch (err: any) {
-      Alert.alert('Login Failed', err.message || 'Something went wrong');
+      setError(err?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   return (
-    <View className="justify-center flex-1 px-6 bg-gray-100">
+    <View className="justify-center px-6">
       <Text className="mb-8 text-3xl font-bold text-center text-gray-800">Welcome Back</Text>
+
+      {/* Error Message */}
+      {error ? (
+        <View className="p-3 mb-4 bg-red-100 border border-red-400 rounded-lg">
+          <Text className="font-medium text-center text-red-700">{error}</Text>
+        </View>
+      ) : null}
 
       {/* Email Input */}
       <View className="mb-4">
@@ -79,11 +96,7 @@ export default function LoginScreen() {
           className="absolute right-3 top-10"
           onPress={() => setShowPassword(!showPassword)}
         >
-          <Ionicons
-            name={showPassword ? 'eye-off' : 'eye'}
-            size={24}
-            color="gray"
-          />
+          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="gray" />
         </TouchableOpacity>
       </View>
 
@@ -97,14 +110,6 @@ export default function LoginScreen() {
           {loading ? 'Logging in...' : 'Login'}
         </Text>
       </TouchableOpacity>
-
-      {/* Sign Up Link */}
-      <View className="flex-row justify-center mt-4">
-        <Text className="text-gray-600">Don't have an account? </Text>
-        <TouchableOpacity onPress={() => Alert.alert('Redirect', 'Go to Sign Up')}>
-          <Text className="font-semibold text-blue-600">Sign Up</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

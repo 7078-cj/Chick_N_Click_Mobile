@@ -5,7 +5,7 @@ import { createContext, ReactNode, useEffect, useState } from "react";
 type AuthContextType = {
   token: string | null;
   user: userType | null;
-  loginUser: (credentials: { email: string; password: string }) => Promise<void>;
+  loginUser: (credentials: { email: string; password: string }) => Promise<void | string>;
   logoutUser: () => Promise<void>;
 };
 
@@ -52,9 +52,8 @@ export function AuthProvider({ children }: UserContextProviderProps) {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login Failed');
+      if (data.message == "The credential are wrong") {
+        return data.message
       }
 
       if (data.token && data.user) {
@@ -65,7 +64,7 @@ export function AuthProvider({ children }: UserContextProviderProps) {
         await AsyncStorage.setItem('user', JSON.stringify(data.user));
       }
     } catch (err) {
-      throw err;
+      return err;
     }
   };
 

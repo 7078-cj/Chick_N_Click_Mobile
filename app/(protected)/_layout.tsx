@@ -1,4 +1,4 @@
-import AuthModal from "@/components/AuthModal";
+import AuthModal from "@/components/auth/AuthModal";
 import AuthContext from "@/contexts/AuthContext";
 import { Slot } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -15,7 +15,7 @@ export default function ProtectedLayout() {
     } else {
       setVisible(false);
     }
-  }, [user]);
+  }, []);
 
   return (
     <>

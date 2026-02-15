@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-export default function register() {
+export default function Register() {
   return (
     <View>
       <Text>register</Text>
