@@ -1,5 +1,6 @@
+import AuthContext from '@/contexts/AuthContext';
 import { useCart } from '@/hooks/useCart';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import CartCard from './CartCard';
 
@@ -7,18 +8,46 @@ type CartItemType = {
   food_id: number;
   [key: string]: any; // other properties
 };
+const url = process.env.EXPO_PUBLIC_API_URL;
 
 export default function CartList() {
   const CartContext = useCart();
+  const auth = useContext(AuthContext);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const toggleSelect = (foodId: number) => {
-    setSelectedItems((prev) =>
-      prev.includes(foodId)
-        ? prev.filter((id) => id !== foodId)
-        : [...prev, foodId]
-    );
-  };
+        setSelectedItems((prev) =>
+        prev.includes(foodId)
+            ? prev.filter((id) => id !== foodId)
+            : [...prev, foodId]
+        );
+    };
+
+    const handleRemoveToCart = async (foodID:number) => {
+        try {
+        const res = await fetch(`${url}/api/cart/remove/${foodID}`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            },
+        });
+
+        await res.json();
+        CartContext.handleRemove(foodID);
+        } catch (err) {
+        console.error(err);
+        alert("Error removing item.");
+        }
+    };
+
+    const removeSelected = async () => {
+        for (const foodId of selectedItems) {
+        await handleRemoveToCart(foodId);
+        }
+        setSelectedItems([]);
+       CartContext.fetchCart()
+    };
 
   useEffect(()=>{
     CartContext.fetchCart()
