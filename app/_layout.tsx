@@ -1,4 +1,5 @@
 // app/_layout.tsx
+import Header from '@/components/Header';
 import Tabs from '@/components/Tabs';
 import { AddOnProvider } from '@/contexts/AddOnContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CartProvider>
               <AddOnProvider>
                 <SafeAreaView className="flex-1 bg-white">
+                  <Header/>
                   <Stack screenOptions={{ headerShown: false }}/>
                   <Tabs/>
                 </SafeAreaView>

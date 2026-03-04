@@ -1,8 +1,8 @@
 
 
 export type coordinate = {
-    lat:number
-    lng:number
+    lat:number | null
+    lng:number | null
     full?: string 
     city?: string
     country?: string

@@ -42,8 +42,6 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   // Cancel order
   // ----------------------
   const cancelOrder = async (orderId: number) => {
-    if (!confirm("Are you sure you want to cancel this order?")) return;
-
     try {
       const res = await fetch(`${url}/api/order/${orderId}/cancel`, {
         method: "POST",

@@ -55,11 +55,9 @@ export default function CartList() {
 
   return (
     <View className="flex-1">
-      <Text className="px-6 mt-6 text-lg font-bold">CartList</Text>
-
       {CartContext.cart.length > 0 ? (
         <ScrollView
-          className="flex-1 px-6 mt-4"
+          className="px-6 "
           contentContainerStyle={{ paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
         >

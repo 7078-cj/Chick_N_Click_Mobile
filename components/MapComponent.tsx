@@ -17,7 +17,13 @@ type Markers = {
   end: MarkerInfo | null;
 };
 
-export default function MapComponent() {
+type MapComponentProps = {
+  lat2?: number | null;
+  lng2?: number | null;
+};
+
+
+export default function MapComponent({ lat2, lng2 }: MapComponentProps) {
     const mapRef = useRef<MapView>(null);
     const [location, setLocation] = useState<coordinate | null>(null);
     const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
@@ -42,6 +48,12 @@ export default function MapComponent() {
         }
         
     },[location])
+
+    useEffect(() => {
+    if (lat2 != null && lng2 != null) {
+      setLocation({ lat: lat2, lng: lng2 });
+    }
+  }, [lat2, lng2]);
 
   return (
     <View >
@@ -79,7 +91,10 @@ export default function MapComponent() {
         {location && 
             <Marker
             key={2}
-            coordinate={{ latitude: location.lat, longitude: location.lng }}
+            coordinate={{
+              latitude: location.lat ?? 15.1167,   // fallback to Apalit, Pampanga
+              longitude: location.lng ?? 120.6425, // fallback to Apalit, Pampanga
+            }}
             title={location.full}
             description={'delivery location'}
           />

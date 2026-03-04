@@ -3,6 +3,7 @@ import AuthContext from "@/contexts/AuthContext";
 import { Slot } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+;
 
 export default function ProtectedLayout() {
   const auth = useContext(AuthContext);
