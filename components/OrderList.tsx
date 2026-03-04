@@ -3,13 +3,13 @@ import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import OrderCard from "./OrderCard";
 
- const statusColors = {
-    pending: "yellow",
-    approved: "blue",
-    declined: "red",
-    completed: "green",
-    cancelled: "gray",
-  };
+const statusColors = {
+  pending: "bg-amber-400",      // softer yellow
+  approved: "bg-sky-500",       // calming blue
+  declined: "bg-rose-500",      // nice red/pink tone
+  completed: "bg-emerald-500",  // fresh green
+  cancelled: "bg-neutral-400",  // subtle gray
+};
 
 export default function OrdersList() {
     const orderContext = useOrder()

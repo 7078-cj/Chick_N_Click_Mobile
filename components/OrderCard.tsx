@@ -37,8 +37,9 @@ export default function OrderCard({
       <View className="flex-row justify-between mb-2">
         <Text className="text-lg font-bold">Order #{order.id}</Text>
         <View
-          className="px-2 py-1 rounded-md"
-          style={{ backgroundColor: statusColor }}
+          
+          className={`px-2 py-1 rounded-md ${statusColor}`}
+          
         >
           <Text className="font-semibold text-white">
             {order.status?.toUpperCase() || "UNKNOWN"}
@@ -107,8 +108,8 @@ export default function OrderCard({
           )}
 
           <Pressable
-            className="px-3 py-1 rounded-md"
-            style={{ backgroundColor: statusColor }}
+            className={`px-3 py-1 rounded-md ${statusColor}`}
+            
             onPress={() => setOpened(true)}
           >
             <Text className="text-xs text-white">View Details</Text>
