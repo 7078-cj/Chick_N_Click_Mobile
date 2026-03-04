@@ -88,7 +88,7 @@ export const handleSearch = async (search: string, mapRef: React.RefObject<MapVi
     setLocation(loc);
     setSearch('');
   } catch (err) {
-    console.log(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(search)}&format=json&limit=1`)
+    
     console.log('Search error:', err);
   }
 };
