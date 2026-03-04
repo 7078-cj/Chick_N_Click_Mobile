@@ -15,7 +15,7 @@ export default function ProtectedLayout() {
     } else {
       setVisible(false);
     }
-  }, []);
+  }, [auth?.token]);
 
   return (
     <>

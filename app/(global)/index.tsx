@@ -10,8 +10,8 @@ export default function index() {
         <Text className="text-2xl font-extrabold text-gray-800">Menu</Text>
       </View>
 
-      
       <FoodList />
+      
     </View>
   );
 }
