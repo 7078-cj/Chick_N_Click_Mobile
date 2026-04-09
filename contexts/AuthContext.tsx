@@ -1,11 +1,14 @@
 import { userType } from "@/types/Auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
 type AuthContextType = {
   token: string | null;
   user: userType | null;
-  loginUser: (credentials: { email: string; password: string }) => Promise<void | string>;
+  loginUser: (credentials: {
+    email: string;
+    password: string;
+  }) => Promise<void | string>;
   logoutUser: () => Promise<void>;
 };
 
@@ -26,42 +29,48 @@ export function AuthProvider({ children }: UserContextProviderProps) {
   useEffect(() => {
     const loadAuthData = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem('token');
-        const storedUser = await AsyncStorage.getItem('user');
+        const storedToken = await AsyncStorage.getItem("token");
+        const storedUser = await AsyncStorage.getItem("user");
 
         if (storedToken) setToken(JSON.parse(storedToken));
         if (storedUser) setUser(JSON.parse(storedUser));
       } catch (err) {
-        console.error('Failed to load auth data:', err);
+        console.error("Failed to load auth data:", err);
       }
     };
 
     loadAuthData();
   }, []);
 
-  const loginUser = async ({ email, password }: { email: string; password: string }) => {
+  const loginUser = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
     try {
-      const response = await fetch(url + '/api/login', {
-        method: 'POST',
+      const response = await fetch(url + "/api/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include',
+        credentials: "include",
       });
 
       const data = await response.json();
       if (data.message == "The credential are wrong") {
-        return data.message
+        return data.message;
       }
 
       if (data.token && data.user) {
         setToken(data.token);
         setUser(data.user);
 
-        await AsyncStorage.setItem('token', JSON.stringify(data.token));
-        await AsyncStorage.setItem('user', JSON.stringify(data.user));
+        await AsyncStorage.setItem("token", JSON.stringify(data.token));
+        await AsyncStorage.setItem("user", JSON.stringify(data.user));
       }
     } catch (err) {
       return err;
@@ -71,8 +80,8 @@ export function AuthProvider({ children }: UserContextProviderProps) {
   const logoutUser = async () => {
     setToken(null);
     setUser(null);
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("user");
   };
 
   return (
