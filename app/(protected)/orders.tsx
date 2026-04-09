@@ -1,7 +1,7 @@
 import OrdersList from "@/components/OrderList";
 import { TabContext } from "@/contexts/TabContext";
 import React, { useContext, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 export default function orders() {
   const tab = useContext(TabContext);
@@ -10,8 +10,7 @@ export default function orders() {
     tab?.setActive("Orders");
   }, []);
   return (
-    <View className="h-full">
-      <Text>orders</Text>
+    <View className="flex-1">
       <OrdersList />
     </View>
   );

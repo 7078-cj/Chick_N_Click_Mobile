@@ -14,12 +14,13 @@ export default function Cart() {
   }, []);
 
   return (
-    <View className="justify-between flex-1 px-4 pt-6 bg-gray-100">
-      {/* Cart List */}
-      <CartList />
-
+    <>
+      <View className="justify-between flex-1 px-4 pt-6 bg-gray-100">
+        {/* Cart List */}
+        <CartList />
+      </View>
       {/* Bottom Button */}
-      <View className="items-end pb-6">
+      <View className="absolute bottom-[15%] left-[55%] right-0 p-4 w-[45%] border-gray-300 items-center">
         <TouchableOpacity
           disabled={CartContext.cart.length < 1}
           onPress={() => router.push("/(protected)/checkout")}
@@ -32,6 +33,6 @@ export default function Cart() {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </>
   );
 }
