@@ -1,15 +1,21 @@
 import { CategoryCard } from "@/components/CategoryCard";
 import CategoryFoodModal from "@/components/CategoryFoodModal";
+import { TabContext } from "@/contexts/TabContext";
 import { useFood } from "@/hooks/useFood";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function Index() {
   const foodCtx = useFood();
   const categories = foodCtx?.categories || [];
+  const tab = useContext(TabContext);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
+
+  useEffect(() => {
+    tab?.setActive("Menu");
+  }, []);
 
   return (
     <>

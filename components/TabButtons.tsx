@@ -30,7 +30,7 @@ export default function TabButtons({ label, destination }: TabButtonsProps) {
   return (
     <Pressable onPress={handlePress} className="items-center flex-1">
       <View
-        className={`w-14 h-14 rounded-full items-center justify-center ${
+        className={`w-[60px] h-14 rounded-full items-center justify-center ${
           isActive ? "border-2 border-white rounded-2xl" : ""
         }`}
       >

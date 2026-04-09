@@ -1,11 +1,17 @@
 import CartList from "@/components/CartList";
+import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
 import { router } from "expo-router";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Cart() {
   const CartContext = useCart();
+  const tab = useContext(TabContext);
+
+  useEffect(() => {
+    tab?.setActive("Cart");
+  }, []);
 
   return (
     <View className="justify-between flex-1 px-4 pt-6 bg-gray-100">
