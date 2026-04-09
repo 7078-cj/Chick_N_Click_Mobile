@@ -1,23 +1,31 @@
-import CartList from '@/components/CartList'
-import { useCart } from '@/hooks/useCart'
-import { router } from 'expo-router'
-import React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import CartList from "@/components/CartList";
+import { useCart } from "@/hooks/useCart";
+import { router } from "expo-router";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
-export default function cart() {
-  const CartContext = useCart()
+export default function Cart() {
+  const CartContext = useCart();
+
   return (
-    <View className='flex-col justify-between h-full'>
-      <CartList/>
-      <TouchableOpacity
-        disabled={CartContext.cart.length < 1}
-        onPress={() => router.push('/(protected)/checkout')}
-        className='py-4 text-base text-white bg-orange-400 rounded-lg w- w-px-6 hover:bg-orange-600'
-      >
-        <Text className='text-center'>{CartContext.placingOrder ? "Placing Order..." : "Place Order"}</Text>
-      </TouchableOpacity>
-    </View>
-  )
-}
+    <View className="justify-between flex-1 px-4 pt-6 bg-gray-100">
+      {/* Cart List */}
+      <CartList />
 
-const styles = StyleSheet.create({})
+      {/* Bottom Button */}
+      <View className="items-end pb-6">
+        <TouchableOpacity
+          disabled={CartContext.cart.length < 1}
+          onPress={() => router.push("/(protected)/checkout")}
+          className={`px-8 py-4 rounded-full ${
+            CartContext.cart.length < 1 ? "bg-orange-200" : "bg-orange-400"
+          }`}
+        >
+          <Text className="text-base font-semibold text-white">
+            {CartContext.placingOrder ? "Placing Order..." : "Confirm"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
