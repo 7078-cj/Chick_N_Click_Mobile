@@ -1,74 +1,123 @@
-import { coordinate } from '@/types/Map';
-import { ReverseGeolocation, fetchRoute, handleSearch } from '@/utils/Map';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import MapView, { MapPressEvent, Marker, Polyline } from 'react-native-maps';
+import { coordinate } from "@/types/Map";
+import { ReverseGeolocation, handleSearch } from "@/utils/Map";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, TextInput, View } from "react-native";
+import MapView, { MapPressEvent, Marker } from "react-native-maps";
 
-type MarkerInfo = {
-  lat: number;
-  lng: number;
+type LocationState = {
+  lat: number | null;
+  lng: number | null;
   city?: string;
   country?: string;
   full?: string;
 };
 
-type Markers = {
-  start: { lat: number; lng: number };
-  end: MarkerInfo | null;
-};
-
 type MapComponentProps = {
+  // ── Delivery-map props (unchanged) ────────────────────────────────────────
   lat2?: number | null;
   lng2?: number | null;
+  // ── Register-map props ────────────────────────────────────────────────────
+  editMode?: boolean;
+  location?: LocationState;
+  setLocation?: (loc: LocationState) => void;
 };
 
+const HOC_LOCATION = {
+  lat: 14.958753194320153,
+  lng: 120.75846924744896,
+};
 
-export default function MapComponent({ lat2, lng2 }: MapComponentProps) {
-    const mapRef = useRef<MapView>(null);
-    const [location, setLocation] = useState<coordinate | null>(null);
-    const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
-    const [search, setSearch] = useState('')
-    const HOC_LOCATION = {
-        lat: 14.958753194320153,
-        lng: 120.75846924744896,
-        };
+export default function MapComponent({
+  lat2,
+  lng2,
+  editMode = false,
+  location: externalLocation,
+  setLocation: externalSetLocation,
+}: MapComponentProps) {
+  const mapRef = useRef<MapView>(null);
 
-    const handlePress = async (e: MapPressEvent) => {
+  // Internal location state — used only in delivery mode (lat2/lng2 flow)
+  const [internalLocation, setInternalLocation] = useState<coordinate | null>(
+    null,
+  );
+
+  const [search, setSearch] = useState("");
+
+  // ── Which location object to render the user marker from ─────────────────
+  // In editMode (Register), use externalLocation controlled by the parent.
+  // In delivery mode, use internalLocation.
+  const activeLocation = editMode ? externalLocation : internalLocation;
+
+  // ── Handle map tap ────────────────────────────────────────────────────────
+  const handlePress = async (e: MapPressEvent) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-
     const loc = await ReverseGeolocation({ lat: latitude, lng: longitude });
 
-    const newMarkers = { lat: loc.lat, lng: loc.lng, city: loc.city, country: loc.country, full: loc.full };
-    setLocation(newMarkers);
-    }
+    const resolved: LocationState = {
+      lat: loc.lat,
+      lng: loc.lng,
+      city: loc.city,
+      country: loc.country,
+      full: loc.full,
+    };
 
-    useEffect(()=>{
-        if(location){
-            fetchRoute({ start: HOC_LOCATION, end: location, setRouteCoords });
-        }
-        
-    },[location])
-
-    useEffect(() => {
-    if (lat2 != null && lng2 != null) {
-      setLocation({ lat: lat2, lng: lng2 });
+    if (editMode && externalSetLocation) {
+      // Register mode: lift state up to parent
+      externalSetLocation(resolved);
+    } else {
+      // Delivery mode: keep state local
+      setInternalLocation(resolved);
     }
-  }, [lat2, lng2]);
+  };
+
+  // ── Delivery mode: sync when lat2/lng2 props change ───────────────────────
+  useEffect(() => {
+    if (!editMode && lat2 != null && lng2 != null) {
+      setInternalLocation({ lat: lat2, lng: lng2 });
+    }
+  }, [lat2, lng2, editMode]);
+
+  // ── Animate map to the selected location when it changes ─────────────────
+  useEffect(() => {
+    if (activeLocation?.lat && activeLocation?.lng) {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: activeLocation.lat,
+          longitude: activeLocation.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        500,
+      );
+    }
+  }, [activeLocation]);
 
   return (
-    <View >
-        <View className="absolute z-50 flex-row items-center p-2 bg-white rounded-full shadow top-5 left-4 right-4">
+    <View style={styles.container}>
+      {/* Search bar */}
+      <View className="absolute z-50 flex-row items-center p-2 bg-white rounded-full shadow top-5 left-4 right-4">
         <TextInput
-            className="flex-1 px-4 py-2"
-            placeholder="Search for a location"
-            value={search}
-            onChangeText={setSearch}
-            onSubmitEditing={(e) =>
-                handleSearch(e.nativeEvent.text, mapRef, setSearch, setLocation)
-            }
-            returnKeyType="search"
+          className="flex-1 px-4 py-2"
+          placeholder="Search for a location"
+          value={search}
+          onChangeText={setSearch}
+          onSubmitEditing={(e) =>
+            handleSearch(
+              e.nativeEvent.text,
+              mapRef,
+              setSearch,
+              // In editMode, wrap handleSearch result to lift state up
+              editMode && externalSetLocation
+                ? (loc: LocationState) => {
+                    if (loc) externalSetLocation(loc as LocationState);
+                  }
+                : setInternalLocation,
+            )
+          }
+          returnKeyType="search"
         />
       </View>
+
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -80,33 +129,25 @@ export default function MapComponent({ lat2, lng2 }: MapComponentProps) {
         }}
         onPress={handlePress}
       >
-        
+        {/* HOC store marker — always visible */}
         <Marker
-            key={1}
-            coordinate={{ latitude: HOC_LOCATION.lat, longitude: HOC_LOCATION.lng }}
-            title={`House of Chicken`}
-            description={'House of Chicken'}
-          />
+          coordinate={{
+            latitude: HOC_LOCATION.lat,
+            longitude: HOC_LOCATION.lng,
+          }}
+          title="House of Chicken"
+          description="House of Chicken"
+        />
 
-        {location && 
-            <Marker
-            key={2}
+        {/* User / delivery location marker */}
+        {activeLocation?.lat && activeLocation?.lng && (
+          <Marker
             coordinate={{
-              latitude: location.lat ?? 15.1167,   // fallback to Apalit, Pampanga
-              longitude: location.lng ?? 120.6425, // fallback to Apalit, Pampanga
+              latitude: activeLocation.lat,
+              longitude: activeLocation.lng,
             }}
-            title={location.full}
-            description={'delivery location'}
-          />
-        }
-       
-
-        {/* Draw polyline for route if available */}
-        {routeCoords.length > 0 && (
-          <Polyline
-            coordinates={routeCoords}
-            strokeColor="#3B82F6"
-            strokeWidth={4}
+            title={activeLocation.full ?? "Selected location"}
+            description={editMode ? "Your location" : "Delivery location"}
           />
         )}
       </MapView>
@@ -114,7 +155,7 @@ export default function MapComponent({ lat2, lng2 }: MapComponentProps) {
   );
 }
 
-
-
-
-const styles = StyleSheet.create({ map: { width: '100%', height: '80%', } });
+const styles = StyleSheet.create({
+  container: { width: "100%", height: "100%" },
+  map: { width: "100%", height: "100%" },
+});

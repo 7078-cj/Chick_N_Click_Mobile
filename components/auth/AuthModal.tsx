@@ -1,6 +1,6 @@
 import { TabContext } from "@/contexts/TabContext";
 import { router } from "expo-router";
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 import Login from "./Login";
 import Register from "./Register";
@@ -63,7 +63,10 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
                   onGoToSignUp={() => setPage("sign-up")}
                 />
               ) : (
-                <Register onGoToLogin={() => setPage("login")} />
+                <Register
+                  onGoToLogin={() => setPage("login")}
+                  setVisible={setVisible}
+                />
               )}
             </View>
           </View>

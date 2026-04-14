@@ -1,12 +1,13 @@
 import AuthModal from "@/components/auth/AuthModal";
 import AuthContext from "@/contexts/AuthContext";
+import { TabContext } from "@/contexts/TabContext";
 import { Slot } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-;
 
 export default function ProtectedLayout() {
   const auth = useContext(AuthContext);
+  const tab = useContext(TabContext);
   const user = auth?.user;
   const [visible, setVisible] = useState(false);
 
