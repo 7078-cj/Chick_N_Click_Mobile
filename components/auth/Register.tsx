@@ -46,6 +46,7 @@ function Field({
           className="flex-1 text-sm text-gray-900"
         />
         {rightIcon}
+        {/* meow */}
       </View>
       {error ? (
         <Text className="mt-1 text-xs text-red-500">{error}</Text>
