@@ -1,83 +1,188 @@
+import { COLORS, SHADOW } from "@/constants/theme";
 import { Food } from "@/types/Food";
-import React, { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import React, { useRef, useState } from "react";
+import {
+  Animated,
+  Text,
+  TouchableWithoutFeedback,
+  View
+} from "react-native";
 import AddToCartModal from "./AddToCartModal";
 
-type FoodCardProps = {
+type Props = {
   food: Food;
 };
 
-const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
+const FoodCard: React.FC<Props> = ({ food }) => {
   const [addOpen, setAddOpen] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const scale = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // 🎯 Press animation
+  const onPressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // 🖼 Fade-in image
+  const onImageLoad = () => {
+    setImgLoaded(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
     <>
-      <TouchableOpacity
-        activeOpacity={0.9}
+      <TouchableWithoutFeedback
         onPress={() => setAddOpen(true)}
-        className="mb-4 bg-white rounded-2xl shadow"
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
       >
-        {/* IMAGE */}
-        <View className="relative">
-          <Image
-            source={{
-              uri:
-                food.thumbnail ||
-                "https://via.placeholder.com/300x200?text=No+Image",
+        <Animated.View
+          style={[
+            {
+              transform: [{ scale }],
+              backgroundColor: COLORS.card,
+              borderRadius: 20,
+              marginBottom: 20,
+              overflow: "hidden",
+            },
+            SHADOW,
+          ]}
+        >
+          {/* 🟡 TOP */}
+          <View
+            style={{
+              backgroundColor: COLORS.accent,
+              height: 130,
+              justifyContent: "center",
+              paddingHorizontal: 16,
             }}
-            className="w-full h-40 rounded-t-2xl"
-          />
+          >
+            {/* BADGE */}
+            <View
+              style={{
+                position: "absolute",
+                top: 12,
+                left: 0,
+                backgroundColor: COLORS.secondary,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderTopRightRadius: 8,
+                borderBottomRightRadius: 8,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 12 }}>
+                AVAILABLE
+              </Text>
+            </View>
 
-          {/* PRICE TAG */}
-          <View className="absolute bottom-2 right-2 bg-amber-500 px-3 py-1 rounded-full">
-            <Text className="text-white font-bold">₱{food.price}</Text>
+            {/* 🍗 FLOATING IMAGE */}
+            <View
+              style={[
+                {
+                  position: "absolute",
+                  right: 10,
+                  bottom: -25,
+                  backgroundColor: "#fff",
+                  borderRadius: 12,
+                  padding: 4,
+                },
+                SHADOW,
+              ]}
+            >
+              {/* Skeleton */}
+              {!imgLoaded && (
+                <View
+                  style={{
+                    width: 140,
+                    height: 100,
+                    backgroundColor: "#E5E7EB",
+                    borderRadius: 10,
+                  }}
+                />
+              )}
+
+              <Animated.Image
+                source={{
+                  uri:
+                    food.thumbnail ||
+                    "https://via.placeholder.com/300",
+                }}
+                resizeMode="contain"
+                onLoad={onImageLoad}
+                style={{
+                  width: 140,
+                  height: 100,
+                  opacity: fadeAnim,
+                  position: imgLoaded ? "relative" : "absolute",
+                }}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* CONTENT */}
-        <View className="p-3">
-          <Text className="text-lg font-bold mb-1">
-            {food.food_name}
-          </Text>
+          {/* ⚪ CONTENT */}
+          <View style={{ padding: 16, paddingTop: 30 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                color: COLORS.text,
+              }}
+            >
+              {food.food_name}
+            </Text>
 
-          {food.description && (
             <Text
               numberOfLines={2}
-              className="text-sm text-gray-500 mb-2"
+              style={{
+                fontSize: 13,
+                color: COLORS.subtext,
+                marginTop: 4,
+              }}
             >
               {food.description}
             </Text>
-          )}
 
-          {/* CATEGORY CHIPS */}
-          {food.categories && food.categories.length > 0 && (
-            <View className="flex-row flex-wrap gap-1 mb-2">
-              {food.categories.map((cat) => (
-                <View
-                  key={cat.id}
-                  className="bg-amber-100 px-2 py-1 rounded-md"
-                >
-                  <Text className="text-xs text-amber-700">
-                    {cat.name}
-                  </Text>
-                </View>
-              ))}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+              }}
+            >
+              <Text style={{ fontSize: 11, color: "#9CA3AF" }}>
+                {food.categories?.map((c) => c.name).join(", ")}
+              </Text>
+
+              <Text
+                style={{
+                  color: COLORS.secondary,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                }}
+              >
+                ₱{food.price}
+              </Text>
             </View>
-          )}
+          </View>
+        </Animated.View>
+      </TouchableWithoutFeedback>
 
-          {/* CTA BUTTON */}
-          <TouchableOpacity
-            onPress={() => setAddOpen(true)}
-            className="mt-2 bg-amber-500 py-2 rounded-xl items-center"
-          >
-            <Text className="text-white font-semibold">
-              Add to Cart
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-
-      {/* MODAL */}
       <AddToCartModal
         food={food}
         opened={addOpen}
