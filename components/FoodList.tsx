@@ -1,6 +1,6 @@
 import { useFood } from "@/hooks/useFood";
 import React from "react";
-import { FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import FoodCard from "./FoodCard";
 
 const FoodList: React.FC = () => {
@@ -8,21 +8,37 @@ const FoodList: React.FC = () => {
 
   if (!foodCtx) return null;
 
-  const { filteredFoods } = foodCtx;
+  const { filteredFoods, isLoading } = foodCtx;
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" />
+        <Text className="mt-2 text-gray-500">Loading foods...</Text>
+      </View>
+    );
+  }
+
+  if (!filteredFoods || filteredFoods.length === 0) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-gray-500">No food available</Text>
+      </View>
+    );
+  }
 
   return (
-    <View className="flex-1 px-4 pt-2">
-      {foodCtx.isLoading ? (
-        <Text>loadingg</Text>
-      ) : (
-        <FlatList
-          data={filteredFoods}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <FoodCard food={item} />}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      )}
-    </View>
+    <FlatList
+      data={filteredFoods}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <FoodCard food={item} />}
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 100, 
+      }}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
