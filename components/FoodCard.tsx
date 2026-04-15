@@ -1,12 +1,14 @@
 import { Food } from "@/types/Food";
-import React from "react";
-import { Image, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import AddToCartModal from "./AddToCartModal";
 
 type FoodCardProps = {
   food: Food;
 };
 
 const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
+  const [addOpen, setAddOpen] = useState(false)
   return (
     <View className="flex-row p-4 mb-3 bg-white shadow rounded-xl">
       {food.thumbnail && (
@@ -29,6 +31,14 @@ const FoodCard: React.FC<FoodCardProps> = ({ food }) => {
           </Text>
         )}
       </View>
+      <TouchableOpacity
+        onPress={()=>setAddOpen(true)}
+      >
+        <Text>
+          Add to Cart
+        </Text>
+      </TouchableOpacity>
+      <AddToCartModal food={food} opened={addOpen} setOpened={setAddOpen}/>
     </View>
   );
 };

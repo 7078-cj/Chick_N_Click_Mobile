@@ -1,10 +1,22 @@
-import { Category, Food, FoodContextType, FoodEventMsg, FoodProviderProps } from "@/types/Food";
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  Category,
+  Food,
+  FoodContextType,
+  FoodEventMsg,
+  FoodProviderProps,
+} from "@/types/Food";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import AuthContext from "./AuthContext";
 
-
-export const FoodContext = createContext<FoodContextType | undefined>(undefined);
-
+export const FoodContext = createContext<FoodContextType | undefined>(
+  undefined,
+);
 
 export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
   const [foods, setFoods] = useState<Food[]>([]);
@@ -24,16 +36,12 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
   const wsRef = useRef<WebSocket | null>(null);
   const hasLoadedRef = useRef(false);
 
- 
   useEffect(() => {
-    
     setIsLoading(true);
 
     (async () => {
       try {
-       
-        const catRes = await fetch(`${preUrl}/api/category`, {
-        });
+        const catRes = await fetch(`${preUrl}/api/category`, {});
         const catData: { id: number; name: string }[] = await catRes.json();
 
         setCategories(
@@ -42,24 +50,20 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
             name: cat.name,
             value: cat.id.toString(),
             label: cat.name,
-          }))
+          })),
         );
 
-        
-        const foodRes = await fetch(`${preUrl}/api/foods`, {
-        });
+        const foodRes = await fetch(`${preUrl}/api/foods`, {});
         const foodData: Food[] = await foodRes.json();
         setFoods(foodData);
-        setIsLoading(false)
+        setIsLoading(false);
       } catch (err) {
         console.error("Failed to load initial data", err);
       }
     })();
-  }, [preUrl]);
+  }, []);
 
- 
   useEffect(() => {
-
     const ws = new WebSocket(`${wsUrl}/ws/food`);
     wsRef.current = ws;
 
@@ -77,7 +81,6 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
     return () => ws.close();
   }, [user, token, wsUrl]);
 
- 
   const handleFoodEvent = (msg: FoodEventMsg) => {
     const { event, food } = msg;
 
@@ -94,7 +97,6 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
       }
     });
   };
-
 
   const filteredFoods = foods.filter((food) => {
     const matchesSearch =
@@ -115,7 +117,6 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
     setSelectedCategory(null);
   };
 
- 
   return (
     <FoodContext.Provider
       value={{

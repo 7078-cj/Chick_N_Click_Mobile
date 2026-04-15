@@ -89,7 +89,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   // ----------------------
   // WebSocket for real-time order updates
   // ----------------------
-   useEffect(() => {
+  useEffect(() => {
         if (!token || !user) return;
         const ws = new WebSocket(`${wsUrl}/ws/order/${user?.id}`);
 

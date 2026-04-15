@@ -1,13 +1,14 @@
 import { Distance } from "@/utils/Distance";
 import React from "react";
 import {
-    Dimensions,
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
+  Dimensions,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapComponent from "./MapComponent";
 
@@ -52,25 +53,68 @@ export default function OrderDetailModal({
   return (
     <Modal
       animationType="slide"
-      transparent
+      transparent={true}
       visible={opened}
       onRequestClose={() => setOpened(false)}
     >
+    <View className="absolute right-0 z-50 top-[1%] p-4">
+        <TouchableOpacity
+          onPress={() => setOpened(false)}
+          activeOpacity={0.7}
+          className="items-center justify-center bg-white rounded-full shadow w-9 h-9"
+        >
+          
+          <View style={{ width: 14, height: 14, position: "relative" }}>
+            <View
+              style={{
+                position: "absolute",
+                width: 14,
+                height: 1.5,
+                backgroundColor: "#6b7280",
+                borderRadius: 2,
+                top: 6,
+                right: 1,
+                transform: [{ rotate: "45deg" }],
+              }}
+            />
+            <View
+              style={{
+                position: "absolute",
+                width: 14,
+                height: 1.5,
+                backgroundColor: "#6b7280",
+                borderRadius: 2,
+                top: 6,
+                left: 0,
+                transform: [{ rotate: "-45deg" }],
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
       {/* Overlay */}
-      <View className="items-center justify-center flex-1 p-4 bg-slate-400 bg-opacity-20">
+      <View className="items-center justify-center flex-1 p-2 bg-slate-400/[0.40] rounded-t-lg">
         {/* Modal container */}
         <View
           className="w-full overflow-hidden bg-white rounded-lg"
           style={{ maxHeight: height * 0.9 }}
         >
-          <ScrollView contentContainerStyle={{ padding: 16 }} nestedScrollEnabled>
-            <MapComponent lat2={parseFloat(order.latitude)} lng2={parseFloat(order.longitude)}/> 
+          <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            nestedScrollEnabled
+          >
+            <MapComponent
+              lat2={parseFloat(order.latitude)}
+              lng2={parseFloat(order.longitude)}
+            />
             <View className="flex-col">
               {/* Left: Payment + Map */}
-              
+
               <View className="flex-1 p-4 mb-4 bg-white rounded-lg shadow">
                 <View className="w-full h-64 mb-4 bg-gray-200 rounded-lg" />
-                <Text className="mb-1 text-lg font-bold">Payment Successful</Text>
+                <Text className="mb-1 text-lg font-bold">
+                  Payment Successful
+                </Text>
                 <Text className="mb-2 text-sm text-gray-500">
                   Verified via {order.payment_method || "GCash"}.
                 </Text>
@@ -110,31 +154,49 @@ export default function OrderDetailModal({
                     ? `${order.user.first_name} ${order.user.last_name}`
                     : order.user?.name}
                 </Text>
-                <Text className="mb-2 text-sm text-gray-500">{order.user?.phone}</Text>
+                <Text className="mb-2 text-sm text-gray-500">
+                  {order.user?.phone}
+                </Text>
 
                 <Text className="font-medium">
                   Location:{" "}
-                  <Text className="text-teal-600">{order.location || "No location"}</Text>
+                  <Text className="text-teal-600">
+                    {order.location || "No location"}
+                  </Text>
                 </Text>
 
                 <Text className="text-sm text-gray-500">
-                  Lat: <Text className="text-orange-600">{order.latitude || "N/A"}</Text> | Lng:{" "}
-                  <Text className="text-orange-600">{order.longitude || "N/A"}</Text>
+                  Lat:{" "}
+                  <Text className="text-orange-600">
+                    {order.latitude || "N/A"}
+                  </Text>{" "}
+                  | Lng:{" "}
+                  <Text className="text-orange-600">
+                    {order.longitude || "N/A"}
+                  </Text>
                 </Text>
 
                 <Text className="mt-1 font-medium">
-                  Phone: <Text className="text-orange-600">{order.user?.phone_number || "N/A"}</Text>
+                  Phone:{" "}
+                  <Text className="text-orange-600">
+                    {order.user?.phone_number || "N/A"}
+                  </Text>
                 </Text>
 
                 <Text className="mt-2 text-sm text-gray-500">
-                  Preparation Time: <Text className="font-medium">{order.estimated_time_of_completion || 0} mins</Text>
+                  Preparation Time:{" "}
+                  <Text className="font-medium">
+                    {order.estimated_time_of_completion || 0} mins
+                  </Text>
                 </Text>
 
                 {/* Ordered Items */}
-                <Text className="mt-4 mb-1 text-lg font-bold">Ordered Items</Text>
+                <Text className="mt-4 mb-1 text-lg font-bold">
+                  Ordered Items
+                </Text>
                 <View className="mb-2 border-b border-gray-300" />
 
-                {order.items?.map((item:any) => (
+                {order.items?.map((item: any) => (
                   <View
                     key={item.id}
                     className="flex-row items-center justify-between p-2 mb-2 rounded-md bg-gray-50"

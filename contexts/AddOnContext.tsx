@@ -1,10 +1,10 @@
 import { useFood } from "@/hooks/useFood";
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 import AuthContext from "./AuthContext";
 
@@ -30,7 +30,7 @@ interface AddOnContextType {
 /* =============== CONTEXT =============== */
 
 export const AddOnContext = createContext<AddOnContextType | undefined>(
-  undefined
+  undefined,
 );
 
 /* =============== PROVIDER =============== */
@@ -39,16 +39,14 @@ interface AddOnProviderProps {
   children: ReactNode;
 }
 
-export const AddOnProvider: React.FC<AddOnProviderProps> = ({
-  children,
-}) => {
+export const AddOnProvider: React.FC<AddOnProviderProps> = ({ children }) => {
   const foodCtx = useFood();
   const auth = useContext(AuthContext);
 
   const [sides, setSides] = useState<Side[]>([]);
   const [drinks, setDrinks] = useState<Drink[]>([]);
 
-  const url =  process.env.EXPO_PUBLIC_API_URL;
+  const url = process.env.EXPO_PUBLIC_API_URL;
 
   /* =============== FETCH SIDES =============== */
 
@@ -86,10 +84,8 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({
   /* =============== EFFECT =============== */
 
   useEffect(() => {
-    
-      fetchSides();
-      fetchDrinks();
-
+    fetchSides();
+    fetchDrinks();
   }, [foodCtx.foods]);
 
   const context: AddOnContextType = {
@@ -98,8 +94,6 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({
   };
 
   return (
-    <AddOnContext.Provider value={context}>
-      {children}
-    </AddOnContext.Provider>
+    <AddOnContext.Provider value={context}>{children}</AddOnContext.Provider>
   );
 };

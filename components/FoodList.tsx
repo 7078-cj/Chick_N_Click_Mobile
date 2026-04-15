@@ -12,16 +12,16 @@ const FoodList: React.FC = () => {
 
   return (
     <View className="flex-1 px-4 pt-2">
-      {
-        foodCtx.isLoading ? <Text>loadingg</Text> : 
+      {foodCtx.isLoading ? (
+        <Text>loadingg</Text>
+      ) : (
         <FlatList
           data={filteredFoods}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <FoodCard food={item} />}
           contentContainerStyle={{ paddingBottom: 20 }}
-      />
-      }
-      
+        />
+      )}
     </View>
   );
 };

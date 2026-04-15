@@ -1,6 +1,6 @@
 import { userType } from "@/types/Auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useEffect, useState } from "react";
 
 type AuthContextType = {
   token: string | null;
