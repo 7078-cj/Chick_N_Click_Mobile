@@ -1,18 +1,14 @@
-import AuthContext from '@/contexts/AuthContext';
 import { useCart } from '@/hooks/useCart';
 import React, { useContext, useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import CartCard from './CartCard';
 
 type CartItemType = {
   food_id: number;
   [key: string]: any; // other properties
 };
-const url = process.env.EXPO_PUBLIC_API_URL;
-
 export default function CartList() {
   const CartContext = useCart();
-  const auth = useContext(AuthContext);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const toggleSelect = (foodId: number) => {
@@ -23,30 +19,11 @@ export default function CartList() {
         );
     };
 
-    const handleRemoveToCart = async (foodID:number) => {
-        try {
-        const res = await fetch(`${url}/api/cart/remove/${foodID}`, {
-            method: "DELETE",
-            credentials: "include",
-            headers: {
-            Authorization: `Bearer ${auth?.token}`,
-            },
-        });
-
-        await res.json();
-        CartContext.handleRemove(foodID);
-        } catch (err) {
-        console.error(err);
-        alert("Error removing item.");
-        }
-    };
-
     const removeSelected = async () => {
         for (const foodId of selectedItems) {
-        await handleRemoveToCart(foodId);
+        CartContext.handleRemove(foodId);
         }
         setSelectedItems([]);
-       CartContext.fetchCart()
     };
 
   useEffect(()=>{
@@ -56,36 +33,51 @@ export default function CartList() {
   return (
     <View className="flex-1">
       {CartContext.cart.length > 0 ? (
-        <ScrollView
-          className="px-6 "
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {CartContext.cart.map((item: CartItemType) => {
-            const isSelected = selectedItems.includes(item.food_id);
+        <>
+          {selectedItems.length > 0 && (
+            <TouchableOpacity
+              onPress={removeSelected}
+              className="self-end px-4 py-2 mb-2 bg-red-500 rounded-full"
+            >
+              <Text className="text-xs font-semibold text-white">
+                Remove Selected ({selectedItems.length})
+              </Text>
+            </TouchableOpacity>
+          )}
+          <ScrollView
+            className="px-6 "
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {CartContext.cart.map((item: CartItemType) => {
+              const isSelected = selectedItems.includes(item.food_id);
 
-            return (
-              <Pressable
-                key={item.food_id}
-                className={`relative ${
-                  isSelected
-                    ? 'border-2 border-orange-500 rounded-xl'
-                    : ''
-                }`}
-                onPress={() => toggleSelect(item.food_id)}
-              >
-                <CartCard
-                  item={item}
-                  onToggleSelect={toggleSelect}
-                  selectedItems={selectedItems}
-                />
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+              return (
+                <Pressable
+                  key={item.food_id}
+                  className={`relative ${
+                    isSelected
+                      ? 'border-2 border-orange-500 rounded-xl'
+                      : ''
+                  }`}
+                  onPress={() => toggleSelect(item.food_id)}
+                >
+                  <CartCard
+                    item={item}
+                    onToggleSelect={toggleSelect}
+                    selectedItems={selectedItems}
+                  />
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </>
       ) : (
-        <View className="items-center justify-center flex-1">
-          <Text className="text-gray-500">No items in cart</Text>
+        <View className="items-center justify-center flex-1 px-6">
+          <Text className="text-lg font-semibold text-gray-700">Cart is empty</Text>
+          <Text className="mt-1 text-sm text-center text-gray-500">
+            Add food from the menu to start your order.
+          </Text>
         </View>
       )}
     </View>

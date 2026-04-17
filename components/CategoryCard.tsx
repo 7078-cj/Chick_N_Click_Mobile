@@ -8,6 +8,7 @@ interface CategoryCardProps {
   description?: string;
   iconName?: keyof typeof MaterialIcons.glyphMap;
   bgColor?: string;
+  itemCount?: number;
   onPress?: () => void;
 }
 
@@ -17,6 +18,7 @@ export function CategoryCard({
   description,
   iconName = "category",
   bgColor = "#F5C842",
+  itemCount,
   onPress,
 }: CategoryCardProps) {
   return (
@@ -91,6 +93,9 @@ export function CategoryCard({
               {description}
             </Text>
           ) : null}
+          <Text style={{ marginTop: 6, fontSize: 12, color: "#3f3f46", fontWeight: "600" }}>
+            {itemCount ?? 0} item{(itemCount ?? 0) !== 1 ? "s" : ""} available
+          </Text>
         </View>
 
         {/* Icon instead of image */}
@@ -117,7 +122,7 @@ export function CategoryCard({
         }}
       >
         <Text style={{ fontSize: 14, color: "#333", fontWeight: "500" }}>
-          Click to view category
+          Tap to view category
         </Text>
       </View>
     </TouchableOpacity>

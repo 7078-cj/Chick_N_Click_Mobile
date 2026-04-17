@@ -34,10 +34,11 @@ const FoodList: React.FC = () => {
       renderItem={({ item }) => <FoodCard food={item} />}
       contentContainerStyle={{
         paddingHorizontal: 16,
-        paddingTop: 10,
+        paddingTop: 14,
         paddingBottom: 100, 
       }}
       showsVerticalScrollIndicator={false}
+      ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
     />
   );
 };

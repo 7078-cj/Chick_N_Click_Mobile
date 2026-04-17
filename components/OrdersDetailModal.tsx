@@ -3,6 +3,7 @@ import React from "react";
 import {
   Dimensions,
   Image,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -23,12 +24,14 @@ export default function OrderDetailModal({
   order,
   setOpened,
 }: OrderDetailModalProps) {
+  const [imagePreviewOpen, setImagePreviewOpen] = React.useState(false);
   if (!order) return null;
 
-  const totalPrice = order.total_price ? parseFloat(order.total_price) : 0;
-  const subtotal = totalPrice - 30;
-
-  const dis = Distance(order.latitude, order.longitude);
+  const totalPrice = Number(order.total_price || 0);
+  const latitude = Number(order.latitude);
+  const longitude = Number(order.longitude);
+  const hasValidCoordinates = !Number.isNaN(latitude) && !Number.isNaN(longitude);
+  const dis = hasValidCoordinates ? Distance(latitude, longitude) : 0;
 
   let dis_price = 0;
   let extra_km = 0;
@@ -47,9 +50,28 @@ export default function OrderDetailModal({
       dis_price = base_price + extra_km * extra_price;
     }
   }
+  const itemSubtotal = Number(totalPrice - dis_price).toFixed(2);
+  const orderTypeLabel = order.type === "pickup" ? "Pickup" : "Delivery";
+  const paymentStatus = (order.payment_status || "pending").toString().toUpperCase();
+  const resolveProofUri = (value?: string | null) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+    if (trimmed.startsWith("//")) {
+      return `https:${trimmed}`;
+    }
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL || "";
+    if (trimmed.startsWith("/storage/")) {
+      return `${apiUrl}${trimmed}`;
+    }
+    return `${apiUrl}/storage/${trimmed.replace(/^\/+/, "")}`;
+  };
+  const proofUri = resolveProofUri(order.proof_of_payment);
 
   const { height } = Dimensions.get("window");
-
   return (
     <Modal
       animationType="slide"
@@ -99,35 +121,24 @@ export default function OrderDetailModal({
           className="w-full overflow-hidden bg-white rounded-lg"
           style={{ maxHeight: height * 0.9 }}
         >
-          <ScrollView
-            contentContainerStyle={{ padding: 16 }}
-            nestedScrollEnabled
-          >
-            <MapComponent
-              lat2={parseFloat(order.latitude)}
-              lng2={parseFloat(order.longitude)}
-            />
+          <ScrollView contentContainerStyle={{ padding: 16 }} nestedScrollEnabled>
+            {hasValidCoordinates && (
+              <View className="overflow-hidden mb-4 rounded-xl" style={{ height: 220 }}>
+                <MapComponent lat2={latitude} lng2={longitude} />
+              </View>
+            )}
             <View className="flex-col">
-              {/* Left: Payment + Map */}
-
               <View className="flex-1 p-4 mb-4 bg-white rounded-lg shadow">
-                <View className="w-full h-64 mb-4 bg-gray-200 rounded-lg" />
-                <Text className="mb-1 text-lg font-bold">
-                  Payment Successful
-                </Text>
+                <Text className="mb-1 text-lg font-bold">Order Summary</Text>
                 <Text className="mb-2 text-sm text-gray-500">
-                  Verified via {order.payment_method || "GCash"}.
+                  {orderTypeLabel} • Status: {order.status?.toUpperCase()}
                 </Text>
 
                 {/* Fees */}
                 <View className="mb-2 space-y-1">
                   <View className="flex-row justify-between">
                     <Text>Orders Total</Text>
-                    <Text>₱{subtotal.toFixed(2)}</Text>
-                  </View>
-                  <View className="flex-row justify-between">
-                    <Text>Paymongo Fee</Text>
-                    <Text>₱30.00</Text>
+                    <Text>₱{itemSubtotal}</Text>
                   </View>
                   <View className="flex-row justify-between mt-1">
                     <Text>Extra Km: {extra_km}</Text>
@@ -142,9 +153,30 @@ export default function OrderDetailModal({
 
                 <View className="flex-row items-center mt-4">
                   <Text className="text-sm text-gray-500">
-                    Paid via {order.payment_method || "GCash"}
+                    Payment Status: {paymentStatus}
                   </Text>
                 </View>
+
+                {proofUri && (
+                  <View className="mt-3">
+                    <Text className="mb-2 text-sm font-semibold text-gray-700">
+                      Payment Proof
+                    </Text>
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      onPress={() => setImagePreviewOpen(true)}
+                    >
+                      <Image
+                        source={{ uri: proofUri }}
+                        className="w-full h-40 rounded-lg"
+                        resizeMode="cover"
+                      />
+                      <View className="absolute right-2 bottom-2 px-2 py-1 rounded-md bg-black/50">
+                        <Text className="text-[11px] text-white">Tap to preview</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
 
               {/* Right: Customer & Items */}
@@ -155,7 +187,7 @@ export default function OrderDetailModal({
                     : order.user?.name}
                 </Text>
                 <Text className="mb-2 text-sm text-gray-500">
-                  {order.user?.phone}
+                  {order.user?.email}
                 </Text>
 
                 <Text className="font-medium">
@@ -189,6 +221,21 @@ export default function OrderDetailModal({
                     {order.estimated_time_of_completion || 0} mins
                   </Text>
                 </Text>
+
+                {hasValidCoordinates && (
+                  <TouchableOpacity
+                    className="self-start px-3 py-2 mt-2 bg-orange-100 rounded-lg"
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
+                      )
+                    }
+                  >
+                    <Text className="text-xs font-semibold text-orange-700">
+                      Open in Maps
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 {/* Ordered Items */}
                 <Text className="mt-4 mb-1 text-lg font-bold">
@@ -246,6 +293,28 @@ export default function OrderDetailModal({
           </ScrollView>
         </View>
       </View>
+      <Modal
+        visible={imagePreviewOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setImagePreviewOpen(false)}
+      >
+        <View className="items-center justify-center flex-1 bg-black/90">
+          <TouchableOpacity
+            onPress={() => setImagePreviewOpen(false)}
+            className="absolute z-10 items-center justify-center w-10 h-10 bg-white rounded-full top-14 right-6"
+          >
+            <Text className="text-lg font-bold text-gray-700">×</Text>
+          </TouchableOpacity>
+          {proofUri ? (
+            <Image
+              source={{ uri: proofUri }}
+              style={{ width: "92%", height: "70%" }}
+              resizeMode="contain"
+            />
+          ) : null}
+        </View>
+      </Modal>
     </Modal>
   );
 }

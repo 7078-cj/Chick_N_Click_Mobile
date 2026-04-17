@@ -22,10 +22,16 @@ type LocationData = {
   lng: number;
 }
 
+type UploadProof = {
+  uri: string;
+  name: string;
+  type: string;
+};
+
 type PlaceOrderParams = {
-  orderType: string;
+  orderType: "delivery" | "pickup";
   location: LocationData;
-  proof?: File | null;
+  proof?: UploadProof | null;
 }
 
 type CartContextType = {
@@ -34,7 +40,10 @@ type CartContextType = {
   total: number;
   loading: boolean;
   placingOrder: boolean;
-  placeOrder: (params: PlaceOrderParams) => Promise<void>;
+  placeOrder: (params: PlaceOrderParams) => Promise<{
+    ok: boolean;
+    message: string;
+  }>;
   handleUpdate: (foodId: number, newQty: number) => void;
   handleRemove: (foodId: number) => void;
 }
@@ -93,8 +102,8 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
   const updateCartItem = async (foodId: number, newQty: number) => {
     try {
-      const res = await fetch(`${url}/api/cart/${foodId}`, {
-        method: "PUT",
+      const res = await fetch(`${url}/api/cart/add/${foodId}`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -102,11 +111,18 @@ export const CartProvider = ({ children }: ProviderProps) => {
         body: JSON.stringify({ quantity: newQty }),
       });
 
+      if (!res.ok) throw new Error("Failed to update cart item");
       const data = await res.json();
-      setCart(data.cart || []);
-      setTotal(data.total || 0);
+      if (data?.cart && data?.total !== undefined) {
+        setCart(data.cart || []);
+        setTotal(data.total || 0);
+      } else {
+        await fetchCart();
+      }
     } catch (err) {
       console.error(err);
+      Alert.alert("Update Failed", "Unable to update cart item quantity.");
+      await fetchCart();
     }
   };
 
@@ -114,16 +130,17 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
   const removeCartItem = async (foodId: number) => {
     try {
-      const res = await fetch(`${url}/api/cart/${foodId}`, {
+      const res = await fetch(`${url}/api/cart/remove/${foodId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = await res.json();
-      setCart(data.cart || []);
-      setTotal(data.total || 0);
+      if (!res.ok) throw new Error("Failed to remove cart item");
+      await fetchCart();
     } catch (err) {
       console.error(err);
+      Alert.alert("Remove Failed", "Unable to remove item from cart.");
+      await fetchCart();
     }
   };
 
@@ -169,8 +186,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
     proof,
   }: PlaceOrderParams) => {
     if (cart.length === 0) {
-      alert("Your cart is empty!");
-      return;
+      return { ok: false, message: "Your cart is empty." };
     }
 
     try {
@@ -178,12 +194,14 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
       const formData = new FormData();
       formData.append("type", orderType);
-      formData.append("location", location.full);
-      formData.append("latitude", location.lat.toString());
-      formData.append("longitude", location.lng.toString());
+      if (orderType === "delivery") {
+        formData.append("location", location.full);
+        formData.append("latitude", location.lat.toString());
+        formData.append("longitude", location.lng.toString());
+      }
 
       if (proof) {
-        formData.append("proof_of_payment", proof);
+        formData.append("proof_of_payment", proof as any);
       }
 
       const res = await fetch(`${url}/api/order/place`, {
@@ -196,10 +214,18 @@ export const CartProvider = ({ children }: ProviderProps) => {
       });
 
       const data = await res.json();
-      
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to place order.");
+      }
+
+      setCart([]);
+      setTotal(0);
+      return { ok: true, message: data?.message || "Order placed successfully." };
     } catch (err) {
       console.error(err);
-      alert("Error placing order.");
+      const message =
+        err instanceof Error ? err.message : "Error placing order.";
+      return { ok: false, message };
     } finally {
       setPlacingOrder(false);
     }

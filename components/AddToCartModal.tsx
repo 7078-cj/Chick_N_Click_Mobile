@@ -1,6 +1,7 @@
 import { COLORS, SHADOW } from "@/constants/theme"; // Using your theme
 import AuthContext from "@/contexts/AuthContext";
 import { useAddOn } from "@/hooks/useAddOn";
+import { useCart } from "@/hooks/useCart";
 import React, { useContext, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,6 +19,7 @@ const url = process.env.EXPO_PUBLIC_API_URL;
 
 const AddToCartModal = ({ food, opened, setOpened }: any) => {
   const authCtx = useContext(AuthContext);
+  const cartCtx = useCart()
   const { drinks = [], sides = [] } = useAddOn();
 
   const [quantity, setQuantity] = useState(1);
@@ -106,10 +108,12 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
       });
 
       if (res.ok) {
+        cartCtx.fetchCart()
         setOpened(false);
         setOrderDrinks([]);
         setOrderSides([]);
         setQuantity(1);
+
       }
     } catch (err) {
       alert("Failed to add to cart.");

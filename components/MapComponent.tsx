@@ -22,11 +22,6 @@ type MapComponentProps = {
   setLocation?: (loc: LocationState) => void;
 };
 
-const HOC_LOCATION = {
-  lat: 14.958753194320153,
-  lng: 120.75846924744896,
-};
-
 export default function MapComponent({
   lat2,
   lng2,
@@ -35,6 +30,8 @@ export default function MapComponent({
   setLocation: externalSetLocation,
 }: MapComponentProps) {
   const mapRef = useRef<MapView>(null);
+  const hasValidCoordinates = (lat: number | null, lng: number | null) =>
+    lat !== null && lng !== null && !Number.isNaN(lat) && !Number.isNaN(lng);
 
   // Internal location state — used only in delivery mode (lat2/lng2 flow)
   const [internalLocation, setInternalLocation] = useState<coordinate | null>(
@@ -42,14 +39,17 @@ export default function MapComponent({
   );
 
   const [search, setSearch] = useState("");
+  const usesExternalLocation = !!externalLocation;
 
   // ── Which location object to render the user marker from ─────────────────
   // In editMode (Register), use externalLocation controlled by the parent.
   // In delivery mode, use internalLocation.
-  const activeLocation = editMode ? externalLocation : internalLocation;
+  const activeLocation = usesExternalLocation ? externalLocation : internalLocation;
 
   // ── Handle map tap ────────────────────────────────────────────────────────
   const handlePress = async (e: MapPressEvent) => {
+    if (usesExternalLocation && !editMode) return;
+
     const { latitude, longitude } = e.nativeEvent.coordinate;
     const loc = await ReverseGeolocation({ lat: latitude, lng: longitude });
 
@@ -61,11 +61,9 @@ export default function MapComponent({
       full: loc.full,
     };
 
-    if (editMode && externalSetLocation) {
-      // Register mode: lift state up to parent
+    if (usesExternalLocation && externalSetLocation) {
       externalSetLocation(resolved);
     } else {
-      // Delivery mode: keep state local
       setInternalLocation(resolved);
     }
   };
@@ -79,11 +77,11 @@ export default function MapComponent({
 
   // ── Animate map to the selected location when it changes ─────────────────
   useEffect(() => {
-    if (activeLocation?.lat && activeLocation?.lng) {
+    if (hasValidCoordinates(activeLocation?.lat ?? null, activeLocation?.lng ?? null)) {
       mapRef.current?.animateToRegion(
         {
-          latitude: activeLocation.lat,
-          longitude: activeLocation.lng,
+          latitude: activeLocation!.lat!,
+          longitude: activeLocation!.lng!,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
@@ -107,7 +105,7 @@ export default function MapComponent({
               mapRef,
               setSearch,
               // In editMode, wrap handleSearch result to lift state up
-              editMode && externalSetLocation
+              usesExternalLocation && editMode && externalSetLocation
                 ? (loc: LocationState) => {
                     if (loc) externalSetLocation(loc as LocationState);
                   }
@@ -129,25 +127,15 @@ export default function MapComponent({
         }}
         onPress={handlePress}
       >
-        {/* HOC store marker — always visible */}
-        <Marker
-          coordinate={{
-            latitude: HOC_LOCATION.lat,
-            longitude: HOC_LOCATION.lng,
-          }}
-          title="House of Chicken"
-          description="House of Chicken"
-        />
-
         {/* User / delivery location marker */}
-        {activeLocation?.lat && activeLocation?.lng && (
+        {hasValidCoordinates(activeLocation?.lat ?? null, activeLocation?.lng ?? null) && (
           <Marker
             coordinate={{
-              latitude: activeLocation.lat,
-              longitude: activeLocation.lng,
+              latitude: activeLocation!.lat!,
+              longitude: activeLocation!.lng!,
             }}
-            title={activeLocation.full ?? "Selected location"}
-            description={editMode ? "Your location" : "Delivery location"}
+            title={activeLocation?.full ?? "Selected location"}
+            description={usesExternalLocation ? "Your location" : "Delivery location"}
           />
         )}
       </MapView>

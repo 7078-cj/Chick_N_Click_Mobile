@@ -5,17 +5,31 @@ import OrderDetailModal from "./OrdersDetailModal";
 
 export default function OrderCard({ order, cancelOrder }: any) {
   const [opened, setOpened] = useState(false);
+  const firstItem = order?.items?.[0];
+  const firstFood = firstItem?.food;
+  const extraItemsCount = Math.max((order?.items?.length || 0) - 1, 0);
 
-  const isCompleted = order.status === "completed";
+  const getBadgeColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500";
+      case "approved":
+        return "bg-sky-500";
+      case "declined":
+        return "bg-red-500";
+      case "cancelled":
+        return "bg-gray-500";
+      default:
+        return "bg-amber-500";
+    }
+  };
 
   return (
     <View className="mx-4 mb-5 bg-[#EDE6D6] rounded-2xl p-4 shadow-md">
       {/* Status Badge */}
       <View className="absolute left-4 top-4">
         <View
-          className={`px-3 py-1 rounded-md ${
-            isCompleted ? "bg-green-500" : "bg-gray-500"
-          }`}
+          className={`px-3 py-1 rounded-md ${getBadgeColor(order.status)}`}
         >
           <Text className="text-xs font-bold text-white">
             {order.status.toUpperCase()}
@@ -25,7 +39,7 @@ export default function OrderCard({ order, cancelOrder }: any) {
 
       {/* Close Icon (optional) */}
       <View className="absolute right-4 top-4">
-        <Ionicons name="close" size={18} />
+        <Ionicons name="receipt-outline" size={18} color="#6b7280" />
       </View>
 
       {/* Header */}
@@ -40,13 +54,26 @@ export default function OrderCard({ order, cancelOrder }: any) {
       <View className="flex-row items-center justify-between px-4 py-3 bg-[#E6D8B5] rounded-full">
         <View className="flex-row items-center gap-3">
           <Image
-            source={{ uri: order.items?.[0]?.image }}
+            source={{
+              uri:
+                firstFood?.thumbnail ||
+                "https://via.placeholder.com/60x60?text=No+Img",
+            }}
             className="w-12 h-12 rounded-full"
           />
-          <Text className="font-semibold">{order.items?.[0]?.name}</Text>
+          <View>
+            <Text className="font-semibold">
+              {firstFood?.food_name || "Order item"}
+            </Text>
+            {extraItemsCount > 0 && (
+              <Text className="text-xs text-gray-500">
+                +{extraItemsCount} more item{extraItemsCount > 1 ? "s" : ""}
+              </Text>
+            )}
+          </View>
         </View>
 
-        <Text className="font-bold">{order.items?.[0]?.quantity}x</Text>
+        <Text className="font-bold">{firstItem?.quantity || 0}x</Text>
       </View>
 
       {/* Footer */}
