@@ -2,7 +2,7 @@ import { ScreenIntro } from "@/components/layout/ScreenIntro";
 import OrdersList from "@/components/OrderList";
 import { TabContext } from "@/contexts/TabContext";
 import React, { useContext, useEffect } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 export default function orders() {
   const tab = useContext(TabContext);

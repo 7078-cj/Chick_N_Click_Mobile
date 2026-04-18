@@ -1,4 +1,5 @@
 import { getCurrentUser, updateUser } from "@/api/user";
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import MapComponent from "@/components/MapComponent";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import AuthContext from "@/contexts/AuthContext";
@@ -212,7 +213,7 @@ export default function Profile() {
     >
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pb-10"
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}

@@ -1,3 +1,4 @@
+import { CART_LIST_SCROLL_INSET } from '@/constants/theme';
 import { useCart } from '@/hooks/useCart';
 import React, { useContext, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -45,8 +46,7 @@ export default function CartList() {
             </TouchableOpacity>
           )}
           <ScrollView
-            className="px-6 "
-            contentContainerStyle={{ paddingBottom: 24 }}
+            contentContainerStyle={{ paddingBottom: CART_LIST_SCROLL_INSET }}
             showsVerticalScrollIndicator={false}
           >
             {CartContext.cart.map((item: CartItemType) => {

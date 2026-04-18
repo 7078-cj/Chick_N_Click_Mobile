@@ -1,18 +1,11 @@
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useOrder } from "@/hooks/useOrder";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import OrderCard from "./OrderCard";
 
-const statusColors = {
-  pending: "bg-amber-400",      // softer yellow
-  approved: "bg-sky-500",       // calming blue
-  declined: "bg-rose-500",      // nice red/pink tone
-  completed: "bg-emerald-500",  // fresh green
-  cancelled: "bg-neutral-400",  // subtle gray
-};
-
 export default function OrdersList() {
-    const orderContext = useOrder()
+  const orderContext = useOrder();
 
   if (orderContext.loading) {
     return (
@@ -27,15 +20,14 @@ export default function OrdersList() {
     <View className="w-full">
       {orderContext.orders?.length > 0 ? (
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
           showsVerticalScrollIndicator={false}
         >
           <View className="flex-col w-full">
-            {orderContext.orders.map((order:any) => (
+            {orderContext.orders.map((order: any) => (
               <OrderCard
                 key={order.id}
                 order={order}
-                statusColors={statusColors}
                 cancelOrder={orderContext.cancelOrder}
               />
             ))}

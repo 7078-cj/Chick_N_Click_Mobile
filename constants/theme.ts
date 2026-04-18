@@ -38,3 +38,12 @@ export const SHADOW_SOFT = {
   shadowOffset: { width: 0, height: 4 },
   elevation: 3,
 };
+
+/**
+ * Scroll content padding so lists clear the floating bottom tab bar
+ * (`components/Tabs.tsx` ~ `bottom-[4.5%]`).
+ */
+export const TAB_BAR_SCROLL_INSET = 120;
+
+/** Cart list: extra space for the checkout bar above the tab bar. */
+export const CART_LIST_SCROLL_INSET = 200;

@@ -1,3 +1,4 @@
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useFood } from "@/hooks/useFood";
 import React from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
@@ -35,7 +36,7 @@ const FoodList: React.FC = () => {
       contentContainerStyle={{
         paddingHorizontal: 16,
         paddingTop: 14,
-        paddingBottom: 100, 
+        paddingBottom: TAB_BAR_SCROLL_INSET,
       }}
       showsVerticalScrollIndicator={false}
       ItemSeparatorComponent={() => <View style={{ height: 4 }} />}

@@ -1,7 +1,7 @@
 import { CategoryCard } from "@/components/CategoryCard";
 import CategoryFoodModal from "@/components/CategoryFoodModal";
 import FoodCard from "@/components/FoodCard";
-import { COLORS } from "@/constants/theme";
+import { COLORS, TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { TabContext } from "@/contexts/TabContext";
 import { useFood } from "@/hooks/useFood";
 import { getCategoryMaterialIcon } from "@/utils/categoryIcon";
@@ -75,7 +75,11 @@ export default function Index() {
 
   return (
     <>
-      <ScrollView ref={scrollRef} className="flex-1 bg-white">
+      <ScrollView
+        ref={scrollRef}
+        className="flex-1 bg-white"
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
+      >
         {/* Header */}
         <View
           className="px-4 pt-3 pb-4 mb-1 bg-white border-b rounded-b-3xl"
@@ -121,7 +125,7 @@ export default function Index() {
 
         {/* Normal: categories + hero */}
         {!isSearching ? (
-          <View className="gap-4 px-4 pb-10 mt-4">
+          <View className="gap-4 px-4 pb-4 mt-4">
 
 
             <View ref={categoriesRef}>
@@ -214,7 +218,7 @@ export default function Index() {
                 ))}
           </View>
         ) : (
-          <View className="px-4 pb-28 mt-4">
+          <View className="px-4 pb-4 mt-4">
             <Text className="mb-3 text-sm text-gray-600">
               Results for &quot;{searchTrim}&quot;
             </Text>
