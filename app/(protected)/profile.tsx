@@ -1,7 +1,7 @@
 import { getCurrentUser, updateUser } from "@/api/user";
-import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import MapComponent from "@/components/MapComponent";
 import RequestStatusModal from "@/components/RequestStatusModal";
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 
@@ -218,12 +218,6 @@ export default function Profile() {
       >
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 pt-14 pb-5">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white items-center justify-center shadow"
-          >
-            <Ionicons name="chevron-back" size={20} color="#555" />
-          </TouchableOpacity>
 
           <View className="w-16 h-16 rounded-full bg-orange-50 items-center justify-center shadow">
             <Text className="text-3xl">🍗</Text>
