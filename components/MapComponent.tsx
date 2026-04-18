@@ -20,6 +20,10 @@ type MapComponentProps = {
   editMode?: boolean;
   location?: LocationState;
   setLocation?: (loc: LocationState) => void;
+  /** Hide the floating search bar (e.g. read-only previews). Defaults to true (search shown). */
+  showSearchBar?: boolean;
+  /** Allow pan/zoom/tap on map. When false, map is view-only. */
+  interactive?: boolean;
 };
 
 export default function MapComponent({
@@ -28,6 +32,8 @@ export default function MapComponent({
   editMode = false,
   location: externalLocation,
   setLocation: externalSetLocation,
+  showSearchBar = true,
+  interactive = true,
 }: MapComponentProps) {
   const mapRef = useRef<MapView>(null);
   const hasValidCoordinates = (lat: number | null, lng: number | null) =>
@@ -48,6 +54,7 @@ export default function MapComponent({
 
   // ── Handle map tap ────────────────────────────────────────────────────────
   const handlePress = async (e: MapPressEvent) => {
+    if (!interactive) return;
     if (usesExternalLocation && !editMode) return;
 
     const { latitude, longitude } = e.nativeEvent.coordinate;
@@ -92,40 +99,44 @@ export default function MapComponent({
 
   return (
     <View style={styles.container}>
-      {/* Search bar */}
-      <View className="absolute z-50 flex-row items-center p-2 bg-white rounded-full shadow top-5 left-4 right-4">
-        <TextInput
-          className="flex-1 px-4 py-2"
-          placeholder="Search for a location"
-          value={search}
-          onChangeText={setSearch}
-          onSubmitEditing={(e) =>
-            handleSearch(
-              e.nativeEvent.text,
-              mapRef,
-              setSearch,
-              // In editMode, wrap handleSearch result to lift state up
-              usesExternalLocation && editMode && externalSetLocation
-                ? (loc: LocationState) => {
-                    if (loc) externalSetLocation(loc as LocationState);
-                  }
-                : setInternalLocation,
-            )
-          }
-          returnKeyType="search"
-        />
-      </View>
+      {showSearchBar ? (
+        <View className="absolute z-50 flex-row items-center p-2 bg-white rounded-full shadow top-5 left-4 right-4">
+          <TextInput
+            className="flex-1 px-4 py-2"
+            placeholder="Search for a location"
+            value={search}
+            onChangeText={setSearch}
+            onSubmitEditing={(e) =>
+              handleSearch(
+                e.nativeEvent.text,
+                mapRef,
+                setSearch,
+                usesExternalLocation && editMode && externalSetLocation
+                  ? (loc: LocationState) => {
+                      if (loc) externalSetLocation(loc as LocationState);
+                    }
+                  : setInternalLocation,
+              )
+            }
+            returnKeyType="search"
+          />
+        </View>
+      ) : null}
 
       <MapView
         ref={mapRef}
         style={styles.map}
+        scrollEnabled={interactive}
+        zoomEnabled={interactive}
+        pitchEnabled={interactive}
+        rotateEnabled={interactive}
         initialRegion={{
           latitude: 14.9581,
           longitude: 120.7589,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
-        onPress={handlePress}
+        onPress={interactive ? handlePress : undefined}
       >
         {/* User / delivery location marker */}
         {hasValidCoordinates(activeLocation?.lat ?? null, activeLocation?.lng ?? null) && (

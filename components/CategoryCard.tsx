@@ -51,29 +51,6 @@ export function CategoryCard({
       >
         {/* Text content */}
         <View style={{ flex: 1, paddingRight: 8 }}>
-          {/* Badge label */}
-          <View
-            style={{
-              alignSelf: "flex-start",
-              backgroundColor: "#E07B1A",
-              borderRadius: 6,
-              paddingHorizontal: 10,
-              paddingVertical: 3,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 11,
-                fontWeight: "800",
-                letterSpacing: 0.6,
-              }}
-            >
-              {label}
-            </Text>
-          </View>
-
           <Text
             style={{
               fontSize: 18,
