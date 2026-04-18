@@ -98,11 +98,16 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
     });
   };
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
   const filteredFoods = foods.filter((food) => {
     const matchesSearch =
-      searchQuery === "" ||
-      food.food_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      normalizedQuery === "" ||
+      food.food_name?.toLowerCase().includes(normalizedQuery) ||
+      food.description?.toLowerCase().includes(normalizedQuery) ||
+      food.categories?.some((cat) =>
+        cat.name?.toLowerCase().includes(normalizedQuery),
+      );
 
     const matchesCategory =
       !selectedCategory ||
