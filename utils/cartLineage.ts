@@ -4,24 +4,27 @@
  */
 export function getAddonParentFoodId(item: {
   is_addon?: boolean;
+  parent_food_id?: unknown;
   parent?: { food_id?: unknown } | null;
   [key: string]: unknown;
 }): number | null {
   if (!item?.is_addon) return null;
-  if (item.parent && typeof item.parent === "object" && "food_id" in item.parent) {
-    const fid = Number((item.parent as { food_id: unknown }).food_id);
-    if (Number.isFinite(fid)) return fid;
-  }
-  const raw =
+  const flat =
     item.parent_food_id ??
     item.main_food_id ??
     item.parentFoodId ??
     item.mainFoodId ??
     item.addon_for_food_id ??
     item.paired_food_id;
-  if (raw == null || raw === "") return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
+  if (flat != null && flat !== "") {
+    const n = Number(flat);
+    if (Number.isFinite(n)) return n;
+  }
+  if (item.parent && typeof item.parent === "object" && "food_id" in item.parent) {
+    const fid = Number((item.parent as { food_id: unknown }).food_id);
+    if (Number.isFinite(fid)) return fid;
+  }
+  return null;
 }
 
 export function linkedAddonsForMain(
