@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/api/user";
+import CheckoutCartReview from "@/components/CheckoutCartReview";
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import AuthContext from "@/contexts/AuthContext";
@@ -215,6 +216,7 @@ export default function Checkout() {
           accentTitle
         />
         <View className="p-5">
+        <CheckoutCartReview />
 
         <View className="p-4 mb-4 bg-white shadow rounded-2xl">
           <Text className="mb-3 text-base font-semibold">Order Type</Text>

@@ -1,64 +1,64 @@
-import { postCartAdd } from "@/api/cart";
 import { COLORS } from "@/constants/theme";
-import AuthContext from "@/contexts/AuthContext";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-    Image,
-    Pressable,
-    Text,
-    View,
+  ActivityIndicator,
+  Image,
+  Pressable,
+  Text,
+  View,
 } from "react-native";
 
 type CartCardProps = {
   item: any;
-  onUpdate?: (food_id: number, quantity: number) => void;
+  onUpdate?: (
+    food_id: number,
+    quantity: number,
+  ) => boolean | void | Promise<boolean | void>;
   selected?: boolean;
   onToggleSelect?: (food_id: number) => void;
   selectedItems?: number[];
   isOrder?: boolean;
   orderId?: number | null;
-}
+  isUpdating?: boolean;
+};
 
 export default function CartCard({
   item,
-  onUpdate = undefined ,
+  onUpdate = undefined,
   selected = undefined,
   onToggleSelect = undefined,
   selectedItems = [],
   isOrder = false,
   orderId = null,
-}:CartCardProps) {
-  const auth = useContext(AuthContext);
+  isUpdating = false,
+}: CartCardProps) {
   const [quantity, setQuantity] = useState(item.quantity);
+  const itemRef = useRef(item);
+  itemRef.current = item;
 
   useEffect(() => {
-    if (quantity !== item.quantity && !item.is_addon) {
-      const timeout = setTimeout(() => {
-        handleUpdateQuantity(quantity);
-      }, 500);
+    setQuantity(item.quantity);
+  }, [item.quantity]);
 
-      return () => clearTimeout(timeout);
-    }
-  }, [quantity]);
-
-  const handleUpdateQuantity = async (newQty:number) => {
-    try {
-      const res = await postCartAdd(auth?.token as string, item.food_id, {
-        quantity: newQty,
+  useEffect(() => {
+    if (item.is_addon) return;
+    if (quantity === item.quantity) return;
+    const timeout = setTimeout(() => {
+      if (!onUpdate) return;
+      void Promise.resolve(onUpdate(item.food_id, quantity)).then((ok) => {
+        if (ok === false) {
+          setQuantity(itemRef.current.quantity);
+        }
       });
-
-      await res.json();
-      onUpdate && onUpdate(item.food_id, newQty);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    }, 450);
+    return () => clearTimeout(timeout);
+  }, [quantity, item.quantity, item.is_addon, item.food_id, onUpdate]);
 
   const isSelected = selectedItems?.includes(item.food_id);
+  const blockQty = isUpdating || item.is_addon;
 
   return (
     <View className="relative flex-row items-center w-full my-2">
-
       {/* Selection Circle */}
       {!isOrder && !item.is_addon && (
         <Pressable
@@ -74,7 +74,7 @@ export default function CartCard({
 
       {/* Card Container */}
       <View
-        className={`flex-row items-center rounded-3xl overflow-hidden w-full border bg-white
+        className={`relative flex-row items-center rounded-3xl overflow-hidden w-full border bg-white
           ${selected ? "border-2 border-brand" : "border-gray-100"}`}
         style={{
           shadowColor: "#000",
@@ -95,9 +95,7 @@ export default function CartCard({
         >
           <Image
             source={{
-              uri:
-                item.thumbnail ||
-                item.food?.thumbnail,
+              uri: item.thumbnail || item.food?.thumbnail,
             }}
             className="w-full h-full"
             resizeMode="cover"
@@ -112,22 +110,18 @@ export default function CartCard({
           <Text className="font-semibold" style={{ color: COLORS.primary }}>
             ₱
             {isOrder
-              ? item.quantity *
-                (item.price ?? item.food?.price ?? 0)
+              ? item.quantity * (item.price ?? item.food?.price ?? 0)
               : item.price ?? item.food?.price ?? 0}
           </Text>
         </View>
 
-        {isOrder && (
-          <Text className="mr-2">{item.quantity} ×</Text>
-        )}
+        {isOrder && <Text className="mr-2">{item.quantity} ×</Text>}
 
         {/* Quantity / Order Section */}
         <View
           className="px-2 py-1 rounded-r-3xl w-[44px] h-[88px] items-center justify-between"
           style={{ backgroundColor: COLORS.primary }}
         >
-
           {isOrder ? (
             <View className="items-center justify-center flex-1">
               <Text className="text-xs text-white rotate-90 whitespace-nowrap">
@@ -138,33 +132,30 @@ export default function CartCard({
             <>
               <Pressable
                 onPress={() => {
-                  if (!item.is_addon)
-                    setQuantity((prev:any) => prev + 1);
+                  if (!blockQty) setQuantity((prev: number) => prev + 1);
                 }}
-                disabled={item.is_addon}
+                disabled={blockQty}
               >
                 <Text
                   className={`text-lg font-bold text-white
-                  ${item.is_addon ? "opacity-50" : ""}`}
+                  ${blockQty ? "opacity-50" : ""}`}
                 >
                   +
                 </Text>
               </Pressable>
 
-              <Text className="font-bold text-white">
-                {quantity}
-              </Text>
+              <Text className="font-bold text-white">{quantity}</Text>
 
               <Pressable
                 onPress={() => {
-                  if (!item.is_addon && quantity > 1)
-                    setQuantity((prev:any) => prev - 1);
+                  if (!blockQty && quantity > 1)
+                    setQuantity((prev: number) => prev - 1);
                 }}
-                disabled={item.is_addon}
+                disabled={blockQty}
               >
                 <Text
                   className={`text-lg font-bold text-white
-                  ${item.is_addon ? "opacity-50" : ""}`}
+                  ${blockQty || quantity <= 1 ? "opacity-50" : ""}`}
                 >
                   -
                 </Text>
@@ -172,6 +163,18 @@ export default function CartCard({
             </>
           )}
         </View>
+
+        {isUpdating ? (
+          <View
+            className="absolute inset-0 rounded-3xl bg-white/70 items-center justify-center"
+            pointerEvents="auto"
+          >
+            <ActivityIndicator size="small" color={COLORS.primary} />
+            <Text className="mt-1 text-[10px] font-semibold text-gray-600">
+              Updating…
+            </Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );

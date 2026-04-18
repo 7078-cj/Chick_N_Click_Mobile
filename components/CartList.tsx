@@ -1,6 +1,7 @@
 import { CART_LIST_SCROLL_INSET } from '@/constants/theme';
 import { useCart } from '@/hooks/useCart';
-import React, { useContext, useEffect, useState } from 'react';
+import { getAddonParentFoodId } from '@/utils/cartLineage';
+import React, { useContext, useState } from 'react';
 import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import CartCard from './CartCard';
 
@@ -27,10 +28,6 @@ export default function CartList() {
         setSelectedItems([]);
     };
 
-  useEffect(()=>{
-    CartContext.fetchCart()
-  },[])
-
   return (
     <View className="flex-1">
       {CartContext.cart.length > 0 ? (
@@ -51,6 +48,12 @@ export default function CartList() {
           >
             {CartContext.cart.map((item: CartItemType) => {
               const isSelected = selectedItems.includes(item.food_id);
+              const updatingId = CartContext.updatingMainFoodId;
+              const isRowUpdating =
+                updatingId != null &&
+                (item.food_id === updatingId ||
+                  (item.is_addon &&
+                    getAddonParentFoodId(item) === updatingId));
 
               return (
                 <Pressable
@@ -64,8 +67,10 @@ export default function CartList() {
                 >
                   <CartCard
                     item={item}
+                    onUpdate={CartContext.handleUpdate}
                     onToggleSelect={toggleSelect}
                     selectedItems={selectedItems}
+                    isUpdating={isRowUpdating}
                   />
                 </Pressable>
               );
