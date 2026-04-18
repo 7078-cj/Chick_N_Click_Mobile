@@ -1,7 +1,9 @@
+import { getCurrentUser } from "@/api/user";
+import { ScreenIntro } from "@/components/layout/ScreenIntro";
+import RequestStatusModal from "@/components/RequestStatusModal";
+import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
-import AuthContext from "@/contexts/AuthContext";
-import RequestStatusModal from "@/components/RequestStatusModal";
 import MapComponent from "@/components/MapComponent";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -58,15 +60,9 @@ export default function Checkout() {
   const loadUserLocation = async () => {
     try {
       const token = auth?.token;
-      const url = process.env.EXPO_PUBLIC_API_URL;
-      if (!token || !url) return;
+      if (!token) return;
 
-      const res = await fetch(`${url}/api/user`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await getCurrentUser(token);
       if (!res.ok) return;
       const data = await res.json();
 
@@ -211,12 +207,14 @@ export default function Checkout() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-gray-100">
+      <ScrollView className="flex-1 bg-white">
+        <ScreenIntro
+          eyebrow="Almost there"
+          title="Checkout"
+          subtitle="Confirm your order details before placing."
+          accentTitle
+        />
         <View className="p-5">
-        <Text className="mb-2 text-2xl font-bold text-gray-900">Checkout</Text>
-        <Text className="mb-5 text-sm text-gray-500">
-          Confirm your order details before placing.
-        </Text>
 
         <View className="p-4 mb-4 bg-white shadow rounded-2xl">
           <Text className="mb-3 text-base font-semibold">Order Type</Text>

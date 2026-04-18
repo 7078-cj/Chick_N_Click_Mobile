@@ -1,3 +1,4 @@
+import { registerRequest } from "@/api/auth";
 import AuthContext from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
@@ -148,8 +149,6 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
     setLoading(true);
     setErrors({});
 
-    const url = process.env.EXPO_PUBLIC_API_URL;
-
     try {
       // ── Build body (mirrors web RegisterUser body) ───────────────────────
       const body = {
@@ -165,26 +164,18 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
         location: location.full || "",
       };
 
-      const response = await fetch(`${url}/api/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(body),
-        credentials: "include",
-      });
+      const { res, data } = await registerRequest(body);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+      if (!res.ok) {
+        throw new Error(
+          (data as { message?: string })?.message || "Registration failed",
+        );
       }
 
       // ── Auto-login after successful registration (mirrors web) ────────────
       if (!auth) return;
-      const res = await auth.loginUser({ email, password });
-      if (res === "The credential are wrong") return;
+      const loginResult = await auth.loginUser({ email, password });
+      if (loginResult === "The credential are wrong") return;
       else setVisible?.(false);
 
       // Navigation is handled by the parent via loginUser / auth context

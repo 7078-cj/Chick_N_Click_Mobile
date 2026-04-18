@@ -15,11 +15,14 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
   const foods = foodCtx?.filteredFoods || [];
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 bg-amber-200 border-b border-amber-300">
+      <View
+        className="flex-row items-center justify-between px-4 py-3 bg-white border-b rounded-b-3xl mb-1"
+        style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
+      >
         <View>
-          <Text className="text-xl font-extrabold text-gray-800">{categoryName}</Text>
+          <Text className="text-xl font-extrabold text-gray-900">{categoryName}</Text>
           <Text className="text-xs text-gray-600">
             {foods.length} item{foods.length !== 1 ? "s" : ""} found
           </Text>
@@ -27,7 +30,7 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
 
         <TouchableOpacity
           onPress={onClose}
-          className="items-center justify-center w-9 h-9 rounded-full bg-white/70"
+          className="items-center justify-center w-9 h-9 rounded-full bg-brand-surface border border-gray-100"
         >
           <Ionicons name="close" size={18} color="#1f2937" />
         </TouchableOpacity>

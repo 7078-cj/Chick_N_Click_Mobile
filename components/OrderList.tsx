@@ -17,7 +17,7 @@ export default function OrdersList() {
   if (orderContext.loading) {
     return (
       <View className="items-center justify-center flex-1">
-        <ActivityIndicator size="large" color="#f97316" />
+        <ActivityIndicator size="large" color="#FD5602" />
         <Text className="mt-2 text-sm text-gray-500">Loading orders...</Text>
       </View>
     );

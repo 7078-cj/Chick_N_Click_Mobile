@@ -1,4 +1,5 @@
 import CartList from "@/components/CartList";
+import { ScreenIntro } from "@/components/layout/ScreenIntro";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
 import { router } from "expo-router";
@@ -16,18 +17,20 @@ export default function Cart() {
 
   return (
     <>
-      <View className="justify-between flex-1 px-4 pt-3 bg-gray-100">
-        <View className="px-2 mb-2">
-          <Text className="text-2xl font-extrabold text-gray-900">Your Cart</Text>
-          <Text className="text-sm text-gray-500">
-            Review items before checkout.
-          </Text>
-        </View>
+      <View className="justify-between flex-1 bg-white">
+        <ScreenIntro
+          eyebrow="Cart"
+          title="Your Cart"
+          subtitle="Review items before checkout."
+          accentTitle
+        />
+        <View className="flex-1 px-4 pt-2">
         {/* Cart List */}
         <CartList />
+        </View>
       </View>
       {/* Bottom Button */}
-      <View className="absolute bottom-[14%] left-0 right-0 p-4 border-t border-gray-200 bg-white/95">
+      <View className="absolute bottom-[14%] left-0 right-0 p-4 border-t bg-white/95 border-brand-soft/30">
         <View className="flex-row items-center justify-between mb-2 px-1">
           <Text className="text-sm text-gray-500">Subtotal</Text>
           <Text className="text-lg font-extrabold text-gray-900">
@@ -38,7 +41,7 @@ export default function Cart() {
           disabled={CartContext.cart.length < 1}
           onPress={() => router.push("/(protected)/checkout")}
           className={`py-4 rounded-2xl items-center ${
-            CartContext.cart.length < 1 ? "bg-orange-200" : "bg-orange-500"
+            CartContext.cart.length < 1 ? "bg-brand-soft/50" : "bg-brand"
           }`}
         >
           <Text className="text-base font-semibold text-white">

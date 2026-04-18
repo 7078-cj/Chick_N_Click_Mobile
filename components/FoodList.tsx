@@ -13,7 +13,7 @@ const FoodList: React.FC = () => {
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#FD5602" />
         <Text className="mt-2 text-gray-500">Loading foods...</Text>
       </View>
     );

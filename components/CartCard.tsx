@@ -1,3 +1,5 @@
+import { postCartAdd } from "@/api/cart";
+import { COLORS } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -6,8 +8,6 @@ import {
     Text,
     View,
 } from "react-native";
-
-const url = process.env.EXPO_PUBLIC_API_URL;
 
 type CartCardProps = {
   item: any;
@@ -43,13 +43,8 @@ export default function CartCard({
 
   const handleUpdateQuantity = async (newQty:number) => {
     try {
-      const res = await fetch(`${url}/api/cart/add/${item.food_id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth?.token}`,
-        },
-        body: JSON.stringify({ quantity: newQty }),
+      const res = await postCartAdd(auth?.token as string, item.food_id, {
+        quantity: newQty,
       });
 
       await res.json();
@@ -69,7 +64,7 @@ export default function CartCard({
         <Pressable
           onPress={() => onToggleSelect && onToggleSelect(item.food_id)}
           className={`absolute -left-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 items-center justify-center
-            ${isSelected ? "bg-orange-500 border-orange-500" : "border-gray-400"}`}
+            ${isSelected ? "border-brand bg-brand" : "border-gray-400"}`}
         >
           {isSelected && (
             <View className="w-2 h-2 bg-white rounded-full" />
@@ -79,11 +74,25 @@ export default function CartCard({
 
       {/* Card Container */}
       <View
-        className={`flex-row items-center bg-[#fef9e7] rounded-3xl overflow-hidden w-full shadow-md
-          ${selected ? "border-2 border-orange-500" : ""}`}
+        className={`flex-row items-center rounded-3xl overflow-hidden w-full border bg-white
+          ${selected ? "border-2 border-brand" : "border-gray-100"}`}
+        style={{
+          shadowColor: "#000",
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 3,
+        }}
       >
         {/* Image */}
-        <View className="w-[100px] h-20 overflow-hidden rounded-3xl bg-yellow-400 items-center justify-center">
+        <View
+          className="w-[100px] h-[88px] overflow-hidden items-center justify-center"
+          style={{
+            backgroundColor: "rgba(253, 86, 2, 0.08)",
+            borderTopLeftRadius: 24,
+            borderBottomLeftRadius: 24,
+          }}
+        >
           <Image
             source={{
               uri:
@@ -96,11 +105,11 @@ export default function CartCard({
         </View>
 
         {/* Info */}
-        <View className="flex-1 px-3">
-          <Text className="font-bold text-black">
+        <View className="flex-1 px-3 py-2">
+          <Text className="font-bold text-gray-900">
             {item.food_name || item.food?.food_name}
           </Text>
-          <Text className="text-[#ff6600] font-semibold">
+          <Text className="font-semibold" style={{ color: COLORS.primary }}>
             ₱
             {isOrder
               ? item.quantity *
@@ -114,11 +123,14 @@ export default function CartCard({
         )}
 
         {/* Quantity / Order Section */}
-        <View className="bg-yellow-300 px-2 py-1 rounded-r-lg w-[40px] h-[80px] items-center justify-between">
+        <View
+          className="px-2 py-1 rounded-r-3xl w-[44px] h-[88px] items-center justify-between"
+          style={{ backgroundColor: COLORS.primary }}
+        >
 
           {isOrder ? (
             <View className="items-center justify-center flex-1">
-              <Text className="text-xs text-black rotate-90 whitespace-nowrap">
+              <Text className="text-xs text-white rotate-90 whitespace-nowrap">
                 Order #{orderId}
               </Text>
             </View>
@@ -132,14 +144,14 @@ export default function CartCard({
                 disabled={item.is_addon}
               >
                 <Text
-                  className={`text-lg font-bold text-orange-700
+                  className={`text-lg font-bold text-white
                   ${item.is_addon ? "opacity-50" : ""}`}
                 >
                   +
                 </Text>
               </Pressable>
 
-              <Text className="font-bold">
+              <Text className="font-bold text-white">
                 {quantity}
               </Text>
 
@@ -151,7 +163,7 @@ export default function CartCard({
                 disabled={item.is_addon}
               >
                 <Text
-                  className={`text-lg font-bold text-orange-700
+                  className={`text-lg font-bold text-white
                   ${item.is_addon ? "opacity-50" : ""}`}
                 >
                   -

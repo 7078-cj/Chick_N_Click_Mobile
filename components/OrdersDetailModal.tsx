@@ -1,4 +1,5 @@
 import { Distance } from "@/utils/Distance";
+import { resolveStorageOrRemoteUrl } from "@/utils/resolveMediaUrl";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -60,23 +61,7 @@ export default function OrderDetailModal({
   const orderTypeLabel = order.type === "pickup" ? "Pickup" : "Delivery";
   const paymentStatus = (order.payment_status || "pending").toString();
 
-  const resolveProofUri = (value?: string | null) => {
-    if (!value) return null;
-    const trimmed = value.trim();
-    if (!trimmed) return null;
-    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-      return trimmed;
-    }
-    if (trimmed.startsWith("//")) {
-      return `https:${trimmed}`;
-    }
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL || "";
-    if (trimmed.startsWith("/storage/")) {
-      return `${apiUrl}${trimmed}`;
-    }
-    return `${apiUrl}/storage/${trimmed.replace(/^\/+/, "")}`;
-  };
-  const proofUri = resolveProofUri(order.proof_of_payment);
+  const proofUri = resolveStorageOrRemoteUrl(order.proof_of_payment);
 
   const { height } = Dimensions.get("window");
 

@@ -16,7 +16,7 @@ export function CategoryCard({
   label,
   title,
   description,
-  iconName = "category",
+  iconName = "restaurant",
   bgColor = "#F5C842",
   itemCount,
   onPress,

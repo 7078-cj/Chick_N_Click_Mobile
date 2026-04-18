@@ -47,6 +47,8 @@ export type FoodContextType = {
   filteredFoods: Food[];
   resetFilters: () => void;
   isLoading: boolean;
+  /** Live menu socket connected (or timed out — safe to show UI). */
+  foodSocketReady: boolean;
 }
 
 export type FoodProviderProps = {

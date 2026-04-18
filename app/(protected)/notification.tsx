@@ -1,3 +1,5 @@
+import { fetchNotifications as apiFetchNotifications } from "@/api/notifications";
+import { ScreenIntro } from "@/components/layout/ScreenIntro";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import React, { useContext, useEffect, useState } from "react";
@@ -16,19 +18,13 @@ export default function Notification() {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
-  const url = process.env.EXPO_PUBLIC_API_URL;
   const wsUrl = process.env.EXPO_PUBLIC_WS_URL;
 
   const fetchNotifications = async () => {
     try {
       if (!auth?.token) return;
       setLoading(true);
-      const res = await fetch(`${url}/api/notifications`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
+      const res = await apiFetchNotifications(auth.token);
       if (!res.ok) throw new Error("Failed to fetch notifications");
       const data = await res.json();
       setNotifications(data?.data || []);
@@ -63,16 +59,32 @@ export default function Notification() {
   }, [auth?.user?.id, wsUrl]);
 
   return (
-    <View className="flex-1 px-4 bg-gray-100">
-      <Text className="mt-2 mb-3 text-2xl font-bold text-gray-900">Notifications</Text>
+    <View className="flex-1 bg-white">
+      <ScreenIntro
+        eyebrow="Updates"
+        title="Notifications"
+        subtitle="Order updates and messages."
+        accentTitle
+      />
+      <View className="flex-1 px-4">
       {loading ? (
         <View className="items-center justify-center flex-1">
-          <ActivityIndicator size="large" color="#f97316" />
+          <ActivityIndicator size="large" color="#FD5602" />
         </View>
       ) : notifications.length ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {notifications.map((item) => (
-            <View key={item.id} className="p-4 mb-3 bg-white shadow rounded-2xl">
+            <View
+              key={item.id}
+              className="p-4 mb-3 bg-white border border-gray-100 rounded-2xl"
+              style={{
+                shadowColor: "#000",
+                shadowOpacity: 0.06,
+                shadowRadius: 12,
+                shadowOffset: { width: 0, height: 4 },
+                elevation: 2,
+              }}
+            >
               <Text className="mb-1 text-base font-semibold text-gray-900">{item.title}</Text>
               <Text className="text-sm text-gray-600">{item.body}</Text>
               <Text className="mt-2 text-xs text-gray-400">
@@ -86,6 +98,7 @@ export default function Notification() {
           <Text className="text-gray-500">No notifications yet.</Text>
         </View>
       )}
+      </View>
     </View>
   );
 }

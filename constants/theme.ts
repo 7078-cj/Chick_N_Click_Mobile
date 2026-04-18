@@ -1,16 +1,40 @@
+/** Happy Orange palette — food-ordering UI system */
 export const COLORS = {
-    primary: "#F59E0B", // amber-500
-    secondary: "#F97316", // orange-500
-    background: "#F9FAFB",
-    card: "#FFFFFF",
-    text: "#111827",
-    subtext: "#6B7280",
-    accent: "#FDE68A", // yellow-300
+  /** Vibrant deep orange — primary CTAs, active states */
+  primary: "#FD5602",
+  /** Bright international orange — secondary emphasis */
+  primaryLight: "#FE6B00",
+  /** Golden orange — highlights, badges */
+  accent: "#FF8D03",
+  /** Soft muted orange — borders, inactive accents */
+  soft: "#FFAF42",
+  /** Pale apricot cream — screens, cards */
+  cream: "#FEDEBE",
+  /** Card / surface on cream */
+  card: "#FFFFFF",
+  /** Light gray surfaces — search fields, chips */
+  surface: "#F5F5F5",
+  text: "#111827",
+  subtext: "#6B7280",
+  /** Legacy alias: hero panels */
+  hero: "#FEDEBE",
+  /** Matches previous `secondary` usages in components */
+  secondary: "#FE6B00",
 };
 
 export const SHADOW = {
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 5,
+  shadowColor: "#FD5602",
+  shadowOpacity: 0.12,
+  shadowRadius: 12,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 4,
+};
+
+/** Neutral card lift — glass-style lists */
+export const SHADOW_SOFT = {
+  shadowColor: "#000",
+  shadowOpacity: 0.06,
+  shadowRadius: 16,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 3,
 };

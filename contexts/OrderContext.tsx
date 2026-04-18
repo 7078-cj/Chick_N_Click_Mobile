@@ -1,3 +1,4 @@
+import { cancelOrderRequest, fetchOrders as apiFetchOrders } from "@/api/orders";
 import { Order, OrderContextType, OrderProviderProps } from "@/types/Order";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AuthContext from "./AuthContext";
@@ -10,8 +11,8 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const { token, user } = useContext(AuthContext) as { token: string | null; user: { id: number } | null };
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [orderSocketReady, setOrderSocketReady] = useState(true);
 
-  const url = process.env.EXPO_PUBLIC_API_URL as string;
   const wsUrl = process.env.EXPO_PUBLIC_WS_URL as string;
 
   // ----------------------
@@ -21,12 +22,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     if (!token) return;
     try {
       setLoading(true);
-      const res = await fetch(`${url}/api/orders`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await apiFetchOrders(token);
 
       if (!res.ok) throw new Error("Failed to fetch orders");
       const data: { orders: Order[] } = await res.json();
@@ -43,13 +39,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   // ----------------------
   const cancelOrder = async (orderId: number) => {
     try {
-      const res = await fetch(`${url}/api/order/${orderId}/cancel`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await cancelOrderRequest(token as string, orderId);
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to cancel order");
@@ -90,33 +80,50 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   // WebSocket for real-time order updates
   // ----------------------
   useEffect(() => {
-        if (!token || !user) return;
-        const ws = new WebSocket(`${wsUrl}/ws/order/${user?.id}`);
+    if (!token || !user) {
+      setOrderSocketReady(true);
+      return;
+    }
 
+    let cancelled = false;
+    setOrderSocketReady(false);
+    const fallback = setTimeout(() => {
+      if (!cancelled) setOrderSocketReady(true);
+    }, 5000);
 
-        ws.onopen = () => console.log("WS Connected");
-        ws.onmessage = (e) => {
-        try {
-            const msg = JSON.parse(e.data);
-            if (msg.type === "order") handleOrderEvent(msg);
-        } catch (err) {
-            console.error(err);
-        }
-        };
+    const ws = new WebSocket(`${wsUrl}/ws/order/${user.id}`);
 
-        ws.onerror = (err) => {
-            console.error("WebSocket error:", err);
-        };
+    ws.onopen = () => {
+      clearTimeout(fallback);
+      if (!cancelled) setOrderSocketReady(true);
+      console.log("WS Connected");
+    };
 
-        ws.onclose = () => {
-            console.log("WebSocket closed");
-        };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === "order") handleOrderEvent(msg);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-        return () => {
-            ws.close();
-        };
-        
-    }, [user]);
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      clearTimeout(fallback);
+      if (!cancelled) setOrderSocketReady(true);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket closed");
+    };
+
+    return () => {
+      cancelled = true;
+      clearTimeout(fallback);
+      ws.close();
+    };
+  }, [token, user, wsUrl]);
 
   // ----------------------
   // Fetch orders on token change
@@ -135,6 +142,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     orders,
     loading,
     setLoading,
+    orderSocketReady,
   };
 
   return <OrderContext.Provider value={context}>{children}</OrderContext.Provider>;

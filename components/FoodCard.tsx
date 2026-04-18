@@ -1,5 +1,6 @@
-import { COLORS, SHADOW } from "@/constants/theme";
+import { COLORS, SHADOW_SOFT } from "@/constants/theme";
 import { Food } from "@/types/Food";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
 import {
   Animated,
@@ -22,10 +23,9 @@ const FoodCard: React.FC<Props> = ({ food }) => {
   const scale = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // 🎯 Press animation
   const onPressIn = () => {
     Animated.spring(scale, {
-      toValue: 0.96,
+      toValue: 0.98,
       useNativeDriver: true,
     }).start();
   };
@@ -37,7 +37,6 @@ const FoodCard: React.FC<Props> = ({ food }) => {
     }).start();
   };
 
-  // 🖼 Fade-in image
   const onImageLoad = () => {
     setImgLoaded(true);
     Animated.timing(fadeAnim, {
@@ -61,129 +60,80 @@ const FoodCard: React.FC<Props> = ({ food }) => {
               backgroundColor: COLORS.card,
               borderRadius: 20,
               marginBottom: 14,
-              overflow: "hidden",
+              paddingVertical: 14,
+              paddingHorizontal: 14,
+              flexDirection: "row",
+              alignItems: "center",
             },
-            SHADOW,
+            SHADOW_SOFT,
           ]}
         >
-          {/* 🟡 TOP */}
           <View
             style={{
-              backgroundColor: COLORS.accent,
-              height: 130,
+              width: 88,
+              height: 88,
+              borderRadius: 44,
+              overflow: "hidden",
+              backgroundColor: COLORS.surface,
+              alignItems: "center",
               justifyContent: "center",
-              paddingHorizontal: 16,
             }}
           >
-            {/* BADGE */}
-            <View
-              style={{
-                position: "absolute",
-                top: 12,
-                left: 0,
-                backgroundColor: COLORS.secondary,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderTopRightRadius: 8,
-                borderBottomRightRadius: 8,
-              }}
-            >
-              <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}>
-                AVAILABLE
-              </Text>
-            </View>
-
-            <View
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                backgroundColor: "rgba(255,255,255,0.85)",
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 999,
-              }}
-            >
-              <Text style={{ fontSize: 12, fontWeight: "800", color: "#B45309" }}>
-                ₱{food.price}
-              </Text>
-            </View>
-
-            {/* 🍗 FLOATING IMAGE */}
-            <View
-              style={[
-                {
-                  position: "absolute",
-                  right: 10,
-                  bottom: -25,
-                  backgroundColor: "#fff",
-                  borderRadius: 12,
-                  padding: 4,
-                },
-                SHADOW,
-              ]}
-            >
-              {/* Skeleton */}
-              {!imgLoaded && (
-                <View
-                  style={{
-                    width: 140,
-                    height: 100,
-                    backgroundColor: "#E5E7EB",
-                    borderRadius: 10,
-                  }}
-                />
-              )}
-
-              <Animated.Image
-                source={{
-                  uri:
-                    food.thumbnail ||
-                    "https://via.placeholder.com/300",
-                }}
-                resizeMode="contain"
-                onLoad={onImageLoad}
+            {!imgLoaded ? (
+              <View
                 style={{
-                  width: 140,
-                  height: 100,
-                  opacity: fadeAnim,
-                  position: imgLoaded ? "relative" : "absolute",
+                  position: "absolute",
+                  width: 88,
+                  height: 88,
+                  borderRadius: 44,
+                  backgroundColor: "#E5E7EB",
                 }}
               />
-            </View>
+            ) : null}
+
+            <Animated.Image
+              source={{
+                uri: food.thumbnail || "https://via.placeholder.com/300",
+              }}
+              resizeMode="cover"
+              onLoad={onImageLoad}
+              style={{
+                width: 88,
+                height: 88,
+                borderRadius: 44,
+                opacity: fadeAnim,
+              }}
+            />
           </View>
 
-          {/* ⚪ CONTENT */}
-          <View style={{ padding: 16, paddingTop: 30 }}>
+          <View style={{ flex: 1, marginLeft: 14, marginRight: 8 }}>
             <Text
+              numberOfLines={1}
               style={{
-                fontSize: 18,
-                fontWeight: "bold",
+                fontSize: 17,
+                fontWeight: "800",
                 color: COLORS.text,
-                paddingRight: 120,
               }}
             >
               {food.food_name}
             </Text>
-
             <Text
               numberOfLines={2}
               style={{
                 fontSize: 13,
                 color: COLORS.subtext,
                 marginTop: 4,
-                minHeight: 34,
+                lineHeight: 18,
               }}
             >
               {food.description || "Freshly prepared and ready to order."}
             </Text>
-
             <View
               style={{
                 flexDirection: "row",
-                justifyContent: "space-between",
                 alignItems: "center",
-                marginTop: 12,
+                justifyContent: "space-between",
+                marginTop: 10,
               }}
             >
               <Text
@@ -192,34 +142,39 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                   flex: 1,
                   fontSize: 11,
                   color: "#6B7280",
-                  marginRight: 10,
+                  marginRight: 8,
                 }}
               >
                 {categoriesText}
               </Text>
-
-              <View
+              <Text
                 style={{
-                  backgroundColor: "#F97316",
-                  borderRadius: 999,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  fontSize: 16,
+                  fontWeight: "800",
+                  color: COLORS.primary,
                 }}
               >
-                <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>
-                  Add to Cart
-                </Text>
-              </View>
+                ₱{food.price}
+              </Text>
             </View>
+          </View>
+
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: COLORS.primary,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons name="add" size={22} color="#fff" />
           </View>
         </Animated.View>
       </TouchableWithoutFeedback>
 
-      <AddToCartModal
-        food={food}
-        opened={addOpen}
-        setOpened={setAddOpen}
-      />
+      <AddToCartModal food={food} opened={addOpen} setOpened={setAddOpen} />
     </>
   );
 };

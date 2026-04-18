@@ -19,7 +19,11 @@ export default function RequestStatusModal({
   onClose,
 }: RequestStatusModalProps) {
   const accentColor =
-    type === "success" ? "bg-green-500" : type === "error" ? "bg-red-500" : "bg-orange-500";
+    type === "success"
+      ? "bg-green-600"
+      : type === "error"
+        ? "bg-red-500"
+        : "bg-brand";
 
   return (
     <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>

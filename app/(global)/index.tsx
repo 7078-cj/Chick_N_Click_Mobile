@@ -1,11 +1,20 @@
 import { CategoryCard } from "@/components/CategoryCard";
 import CategoryFoodModal from "@/components/CategoryFoodModal";
 import FoodCard from "@/components/FoodCard";
+import { COLORS } from "@/constants/theme";
 import { TabContext } from "@/contexts/TabContext";
 import { useFood } from "@/hooks/useFood";
-import { Ionicons } from "@expo/vector-icons";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { getCategoryMaterialIcon } from "@/utils/categoryIcon";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
+  findNodeHandle,
   Modal,
   ScrollView,
   Text,
@@ -19,17 +28,11 @@ export default function Index() {
   const categories = foodCtx?.categories || [];
   const tab = useContext(TabContext);
 
+  const scrollRef = useRef<ScrollView>(null);
+  const categoriesRef = useRef<View>(null);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
-
-  const pickCategoryIcon = (name: string) => {
-    const n = name.toLowerCase();
-    if (n.includes("drink")) return "local-drink";
-    if (n.includes("side")) return "restaurant-menu";
-    if (n.includes("add")) return "add-circle-outline";
-    if (n.includes("chicken")) return "lunch-dining";
-    return "category";
-  };
 
   const searchTrim = (foodCtx.searchQuery || "").trim();
   const isSearching = searchTrim.length > 0;
@@ -48,21 +51,54 @@ export default function Index() {
     tab?.setActive("Menu");
   }, []);
 
+  const scrollToCategories = () => {
+    const scrollNode = findNodeHandle(scrollRef.current);
+    const catEl = categoriesRef.current;
+    if (scrollNode == null || !catEl) return;
+    catEl.measureLayout(
+      scrollNode,
+      (_x, y) => {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, y - 16),
+          animated: true,
+        });
+      },
+      () => {},
+    );
+  };
+
+  const openCategory = (cat: any) => {
+    foodCtx?.setSelectedCategory?.(cat.value);
+    setSelectedCategoryName(cat.name);
+    setModalVisible(true);
+  };
+
   return (
     <>
-      <ScrollView className="flex-1 bg-gray-100">
+      <ScrollView ref={scrollRef} className="flex-1 bg-white">
         {/* Header */}
-        <View className="px-4 pt-3 pb-4 bg-amber-200 border-b border-amber-300">
+        <View
+          className="px-4 pt-3 pb-4 mb-1 bg-white border-b rounded-b-3xl"
+          style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
+        >
           <Text className="text-xs tracking-wider text-gray-600 uppercase">
-            Delicious Picks
+            Delicious picks
           </Text>
-          <Text className="text-3xl font-extrabold text-gray-800">Menu</Text>
-          <Text className="mt-1 text-sm text-gray-700">
+          <Text
+            className="text-3xl font-extrabold"
+            style={{ color: COLORS.primary }}
+          >
+            Menu
+          </Text>
+          <Text className="mt-1 text-sm text-gray-600">
             Choose your favorites and order in seconds.
           </Text>
 
-          <View className="flex-row items-center gap-2 px-3 py-2 mt-3 bg-white border border-amber-300 rounded-2xl">
-            <Ionicons name="search" size={20} color="#9ca3af" />
+          <View
+            className="flex-row items-center gap-2 px-3 py-2.5 mt-3 rounded-2xl border border-gray-100"
+            style={{ backgroundColor: COLORS.surface }}
+          >
+            <Ionicons name="search" size={20} color={COLORS.primary} />
             <TextInput
               className="flex-1 py-1 text-base text-gray-900"
               placeholder="Search food or category..."
@@ -83,16 +119,77 @@ export default function Index() {
           </View>
         </View>
 
-        {/* Normal: all categories */}
+        {/* Normal: categories + hero */}
         {!isSearching ? (
-          <View className="gap-4 px-4 pb-10 mt-5">
+          <View className="gap-4 px-4 pb-10 mt-4">
+
+
+            <View ref={categoriesRef}>
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-lg font-bold text-gray-900">
+                  Categories
+                </Text>
+              </View>
+              {categories.length > 0 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingBottom: 4, gap: 12 }}
+                >
+                  {categories.map((cat: any, i: number) => {
+                    const itemCount = (foodCtx?.foods || []).filter(
+                      (f: any) =>
+                        f.categories?.some(
+                          (c: any) =>
+                            c?.name?.toLowerCase() ===
+                            (cat.name || "").toLowerCase(),
+                        ),
+                    ).length;
+                    const iconName = getCategoryMaterialIcon(cat.name || "");
+                    return (
+                      <TouchableOpacity
+                        key={cat.id ?? i}
+                        activeOpacity={0.88}
+                        onPress={() => openCategory(cat)}
+                        className="items-center justify-center px-3 py-3 rounded-2xl"
+                        style={{
+                          width: 112,
+                          backgroundColor: COLORS.surface,
+                          minHeight: 118,
+                        }}
+                      >
+                        <MaterialIcons
+                          name={iconName}
+                          size={36}
+                          color={COLORS.primary}
+                        />
+                        <Text
+                          className="mt-2 text-sm font-bold text-center text-gray-900"
+                          numberOfLines={2}
+                        >
+                          {cat.name}
+                        </Text>
+                        <Text className="mt-1 text-xs text-gray-500">
+                          {itemCount} items
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              ) : null}
+            </View>
+
+            <Text className="mt-2 mb-1 text-lg font-bold text-gray-900">
+              Browse all
+            </Text>
+
             {categories.length === 0
               ? [0, 1].map((i) => (
                   <CategoryCard
                     key={i}
                     label="LOADING"
                     title="Loading..."
-                    bgColor={i % 2 === 0 ? "#F5C842" : "#F5A97F"}
+                    bgColor={i % 2 === 0 ? "#FFAF42" : "#FF8D03"}
                   />
                 ))
               : categories.map((cat: any, i: number) => (
@@ -101,7 +198,7 @@ export default function Index() {
                     label={cat.label ?? cat.name?.toUpperCase()}
                     title={cat.name}
                     description={cat.description}
-                    iconName={pickCategoryIcon(cat.name || "")}
+                    iconName={getCategoryMaterialIcon(cat.name || "")}
                     itemCount={
                       (foodCtx?.foods || []).filter((f: any) =>
                         f.categories?.some(
@@ -111,12 +208,8 @@ export default function Index() {
                         ),
                       ).length
                     }
-                    bgColor={i % 2 === 0 ? "#F5C842" : "#F5A97F"}
-                    onPress={() => {
-                      foodCtx?.setSelectedCategory?.(cat.value);
-                      setSelectedCategoryName(cat.name);
-                      setModalVisible(true);
-                    }}
+                    bgColor={i % 2 === 0 ? "#FF8D03" : "#FE6B00"}
+                    onPress={() => openCategory(cat)}
                   />
                 ))}
           </View>
@@ -141,7 +234,7 @@ export default function Index() {
                     label={cat.label ?? cat.name?.toUpperCase()}
                     title={cat.name}
                     description={cat.description}
-                    iconName={pickCategoryIcon(cat.name || "")}
+                    iconName={getCategoryMaterialIcon(cat.name || "")}
                     itemCount={
                       (foodCtx?.foods || []).filter((f: any) =>
                         f.categories?.some(
@@ -151,12 +244,8 @@ export default function Index() {
                         ),
                       ).length
                     }
-                    bgColor={i % 2 === 0 ? "#F5C842" : "#F5A97F"}
-                    onPress={() => {
-                      foodCtx?.setSelectedCategory?.(cat.value);
-                      setSelectedCategoryName(cat.name);
-                      setModalVisible(true);
-                    }}
+                    bgColor={i % 2 === 0 ? "#FF8D03" : "#FE6B00"}
+                    onPress={() => openCategory(cat)}
                   />
                 ))}
               </View>
@@ -176,7 +265,6 @@ export default function Index() {
         )}
       </ScrollView>
 
-      {/* ✅ Modal */}
       <Modal visible={modalVisible} animationType="slide">
         <CategoryFoodModal
           categoryName={selectedCategoryName}

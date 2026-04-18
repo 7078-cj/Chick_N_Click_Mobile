@@ -24,7 +24,7 @@ export default function ProtectedLayout() {
       <AuthModal visible={visible} setVisible={setVisible} />
 
       {user && (
-        <SafeAreaView className="flex-1 p-2">
+        <SafeAreaView className="flex-1 bg-white">
           <Slot />
         </SafeAreaView>
       )}

@@ -1,3 +1,9 @@
+import {
+  deleteCartItem as apiDeleteCartItem,
+  fetchCart as apiFetchCart,
+  placeOrder as apiPlaceOrder,
+  postCartAdd as apiPostCartAdd,
+} from "@/api/cart";
 import React, {
   createContext,
   ReactNode,
@@ -5,6 +11,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { Alert } from "react-native";
 import AuthContext from "./AuthContext";
 
 /* ---------- TYPES ---------- */
@@ -64,18 +71,13 @@ export const CartProvider = ({ children }: ProviderProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [placingOrder, setPlacingOrder] = useState<boolean>(false);
 
-  const url = process.env.EXPO_PUBLIC_API_URL;
-
   /* ---------- FETCH CART ---------- */
 
   const fetchCart = async () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`${url}/api/cart`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include",
-      });
+      const res = await apiFetchCart(token as string);
 
       if (!res.ok) throw new Error("Failed to fetch cart");
 
@@ -102,13 +104,8 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
   const updateCartItem = async (foodId: number, newQty: number) => {
     try {
-      const res = await fetch(`${url}/api/cart/add/${foodId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ quantity: newQty }),
+      const res = await apiPostCartAdd(token as string, foodId, {
+        quantity: newQty,
       });
 
       if (!res.ok) throw new Error("Failed to update cart item");
@@ -130,10 +127,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
   const removeCartItem = async (foodId: number) => {
     try {
-      const res = await fetch(`${url}/api/cart/remove/${foodId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiDeleteCartItem(token as string, foodId);
 
       if (!res.ok) throw new Error("Failed to remove cart item");
       await fetchCart();
@@ -204,14 +198,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
         formData.append("proof_of_payment", proof as any);
       }
 
-      const res = await fetch(`${url}/api/order/place`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const res = await apiPlaceOrder(token as string, formData);
 
       const data = await res.json();
       if (!res.ok) {

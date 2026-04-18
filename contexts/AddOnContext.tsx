@@ -1,3 +1,7 @@
+import {
+  fetchDrinks as apiFetchDrinks,
+  fetchSides as apiFetchSides,
+} from "@/api/addons";
 import { useFood } from "@/hooks/useFood";
 import React, {
   createContext,
@@ -46,15 +50,11 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({ children }) => {
   const [sides, setSides] = useState<Side[]>([]);
   const [drinks, setDrinks] = useState<Drink[]>([]);
 
-  const url = process.env.EXPO_PUBLIC_API_URL;
-
   /* =============== FETCH SIDES =============== */
 
   const fetchSides = async (): Promise<void> => {
     try {
-      const res = await fetch(`${url}/api/sides`, {
-        credentials: "include",
-      });
+      const res = await apiFetchSides();
       if (!res.ok) throw new Error("Failed to fetch sides");
 
       const data: Side[] = await res.json();
@@ -68,9 +68,7 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({ children }) => {
 
   const fetchDrinks = async (): Promise<void> => {
     try {
-      const res = await fetch(`${url}/api/drinks`, {
-        credentials: "include",
-      });
+      const res = await apiFetchDrinks();
 
       if (!res.ok) throw new Error("Failed to fetch drinks");
 

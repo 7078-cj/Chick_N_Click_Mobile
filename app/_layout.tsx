@@ -1,4 +1,5 @@
 // app/_layout.tsx
+import AppBootstrapGate from "@/components/AppBootstrapGate";
 import Header from "@/components/Header";
 import Tabs from "@/components/Tabs";
 import { AddOnProvider } from "@/contexts/AddOnContext";
@@ -24,11 +25,13 @@ export default function RootLayout({
           <OrderProvider>
             <CartProvider>
               <AddOnProvider>
-                <SafeAreaView className="flex-1 bg-gray-50">
-                  <Header />
-                  <Stack screenOptions={{ headerShown: false }} />
-                  <Tabs />
-                </SafeAreaView>
+                <AppBootstrapGate>
+                  <SafeAreaView className="flex-1 bg-white">
+                    <Header />
+                    <Stack screenOptions={{ headerShown: false }} />
+                    <Tabs />
+                  </SafeAreaView>
+                </AppBootstrapGate>
               </AddOnProvider>
             </CartProvider>
           </OrderProvider>

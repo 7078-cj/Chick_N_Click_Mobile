@@ -1,3 +1,4 @@
+import { getCurrentUser, updateUser } from "@/api/user";
 import MapComponent from "@/components/MapComponent";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import AuthContext from "@/contexts/AuthContext";
@@ -30,7 +31,6 @@ export default function Profile() {
   const tab = useContext(TabContext);
   const router = useRouter();
 
-  const url = process.env.EXPO_PUBLIC_API_URL;
   const token = auth?.token;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -86,12 +86,7 @@ export default function Profile() {
     try {
       if (!token) throw new Error("Token missing");
 
-      const res = await fetch(`${url}/api/user`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await getCurrentUser(token);
       if (!res.ok) throw new Error(`Status: ${res.status}`);
       const data = await res.json();
       const latitude =
@@ -162,14 +157,7 @@ export default function Profile() {
         "";
       const payload = { ...formData, name: computedName };
 
-      const res = await fetch(`${url}/api/user/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await updateUser(token, payload);
 
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -209,7 +197,7 @@ export default function Profile() {
   // ── Loading ─────────────────────────────
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-gray-100">
+      <View className="flex-1 items-center justify-center gap-3 bg-white">
         <ActivityIndicator size="large" color="#F97316" />
         <Text className="text-sm text-gray-400">Loading profile...</Text>
       </View>
@@ -219,7 +207,7 @@ export default function Profile() {
   // ── UI ──────────────────────────────────
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-gray-100"
+      className="flex-1 bg-white"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView

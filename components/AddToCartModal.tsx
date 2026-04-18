@@ -1,3 +1,4 @@
+import { postCartAdd } from "@/api/cart";
 import { COLORS, SHADOW } from "@/constants/theme"; // Using your theme
 import AuthContext from "@/contexts/AuthContext";
 import { useAddOn } from "@/hooks/useAddOn";
@@ -15,8 +16,6 @@ import {
 } from "react-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const url = process.env.EXPO_PUBLIC_API_URL;
-
 const AddToCartModal = ({ food, opened, setOpened }: any) => {
   const authCtx = useContext(AuthContext);
   const cartCtx = useCart()
@@ -94,17 +93,14 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
     if (!authCtx?.token) return alert("Please login first");
     try {
       setLoading(true);
-      const res = await fetch(`${url}/api/cart/add/${food.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authCtx.token}`,
-        },
-        body: JSON.stringify({
-          quantity,
-          sides: orderSides.flatMap(s => Array(s.count).fill({ id: s.id, size: "medium" })),
-          drinks: orderDrinks.flatMap(d => Array(d.count).fill({ id: d.id, size: "medium" })),
-        }),
+      const res = await postCartAdd(authCtx.token as string, food.id, {
+        quantity,
+        sides: orderSides.flatMap((s) =>
+          Array(s.count).fill({ id: s.id, size: "medium" }),
+        ),
+        drinks: orderDrinks.flatMap((d) =>
+          Array(d.count).fill({ id: d.id, size: "medium" }),
+        ),
       });
 
       if (res.ok) {

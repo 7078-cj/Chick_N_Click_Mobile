@@ -1,3 +1,4 @@
+import { loginRequest } from "@/api/auth";
 import { userType } from "@/types/Auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useEffect, useState } from "react";
@@ -5,6 +6,8 @@ import React, { createContext, ReactNode, useEffect, useState } from "react";
 type AuthContextType = {
   token: string | null;
   user: userType | null;
+  /** True after AsyncStorage session is read (or failed) on launch */
+  authHydrated: boolean;
   loginUser: (credentials: {
     email: string;
     password: string;
@@ -23,8 +26,7 @@ export default AuthContext;
 export function AuthProvider({ children }: UserContextProviderProps) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<userType | null>(null);
-
-  const url = process.env.EXPO_PUBLIC_API_URL;
+  const [authHydrated, setAuthHydrated] = useState(false);
 
   useEffect(() => {
     const loadAuthData = async () => {
@@ -36,6 +38,8 @@ export function AuthProvider({ children }: UserContextProviderProps) {
         if (storedUser) setUser(JSON.parse(storedUser));
       } catch (err) {
         console.error("Failed to load auth data:", err);
+      } finally {
+        setAuthHydrated(true);
       }
     };
 
@@ -50,17 +54,7 @@ export function AuthProvider({ children }: UserContextProviderProps) {
     password: string;
   }) => {
     try {
-      const response = await fetch(url + "/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-
-      const data = await response.json();
+      const data = await loginRequest(email, password);
       if (data.message == "The credential are wrong") {
         return data.message;
       }
@@ -85,7 +79,9 @@ export function AuthProvider({ children }: UserContextProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, loginUser, logoutUser }}>
+    <AuthContext.Provider
+      value={{ token, user, authHydrated, loginUser, logoutUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

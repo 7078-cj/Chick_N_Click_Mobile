@@ -62,6 +62,8 @@ export type OrderContextType = {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   fetchOrders: () => Promise<void>;
   cancelOrder: (orderId: number) => Promise<void>;
+  /** Order updates socket connected when logged in; true immediately when logged out */
+  orderSocketReady: boolean;
 };
 
 export type OrderProviderProps = {

@@ -5,6 +5,7 @@ import {
   FoodEventMsg,
   FoodProviderProps,
 } from "@/types/Food";
+import { fetchCategories, fetchFoods } from "@/api/menu";
 import React, {
   createContext,
   useContext,
@@ -24,13 +25,13 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [foodSocketReady, setFoodSocketReady] = useState(false);
 
   const { token, user } = useContext(AuthContext) as {
     token: string | null;
     user: { id: number } | null;
   };
 
-  const preUrl = process.env.EXPO_PUBLIC_API_URL as string;
   const wsUrl = process.env.EXPO_PUBLIC_WS_URL as string;
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -41,7 +42,7 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        const catRes = await fetch(`${preUrl}/api/category`, {});
+        const catRes = await fetchCategories();
         const catData: { id: number; name: string }[] = await catRes.json();
 
         setCategories(
@@ -53,19 +54,30 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
           })),
         );
 
-        const foodRes = await fetch(`${preUrl}/api/foods`, {});
+        const foodRes = await fetchFoods();
         const foodData: Food[] = await foodRes.json();
         setFoods(foodData);
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load initial data", err);
+        setIsLoading(false);
       }
     })();
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    const fallback = setTimeout(() => {
+      if (!cancelled) setFoodSocketReady(true);
+    }, 5000);
+
     const ws = new WebSocket(`${wsUrl}/ws/food`);
     wsRef.current = ws;
+
+    ws.onopen = () => {
+      clearTimeout(fallback);
+      if (!cancelled) setFoodSocketReady(true);
+    };
 
     ws.onmessage = (event: MessageEvent) => {
       try {
@@ -76,9 +88,18 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
       }
     };
 
+    ws.onerror = () => {
+      clearTimeout(fallback);
+      if (!cancelled) setFoodSocketReady(true);
+    };
+
     ws.onclose = () => console.log("❌ Food WebSocket closed");
 
-    return () => ws.close();
+    return () => {
+      cancelled = true;
+      clearTimeout(fallback);
+      ws.close();
+    };
   }, [user, token, wsUrl]);
 
   const handleFoodEvent = (msg: FoodEventMsg) => {
@@ -136,6 +157,7 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
         filteredFoods,
         resetFilters,
         isLoading,
+        foodSocketReady,
       }}
     >
       {children}
