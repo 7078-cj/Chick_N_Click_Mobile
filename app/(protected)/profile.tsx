@@ -327,6 +327,7 @@ export default function Profile() {
                   location={location}
                   setLocation={setLocation}
                   showSearchBar={isEditing}
+                  interactive={isEditing}
                 />
               </View>
             </View>

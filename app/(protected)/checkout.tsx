@@ -1,8 +1,9 @@
 import { getCurrentUser } from "@/api/user";
 import CheckoutCartReview from "@/components/CheckoutCartReview";
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
-import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
+import MapComponent from "@/components/MapComponent";
 import RequestStatusModal from "@/components/RequestStatusModal";
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
@@ -14,10 +15,16 @@ import {
   Image,
   ScrollView,
   Text,
-  TextInput, // ✅ ADDED
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
+
+type LocationState = {
+  full: string;
+  lat: number;
+  lng: number;
+};
 
 export default function Checkout() {
   const tab = useContext(TabContext);
@@ -26,15 +33,9 @@ export default function Checkout() {
 
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [loadingUser, setLoadingUser] = useState(true);
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
 
-  const [location, setLocation] = useState({
-    full: "",
-    lat: 0,
-    lng: 0,
-  });
-
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
-  const [draftLocation, setDraftLocation] = useState({
+  const [location, setLocation] = useState<LocationState>({
     full: "",
     lat: 0,
     lng: 0,
@@ -46,7 +47,6 @@ export default function Checkout() {
     type: string;
   } | null>(null);
 
-  // ✅ NEW STATE
   const [referenceId, setReferenceId] = useState("");
 
   const [statusModal, setStatusModal] = useState({
@@ -118,11 +118,7 @@ export default function Checkout() {
     [cartCtx.total, deliveryFee]
   );
 
-  /**
-   * PLACE ORDER
-   */
   const handlePlaceOrder = async () => {
-    // ✅ reference validation
     if (!referenceId.trim()) {
       setStatusModal({
         visible: true,
@@ -149,8 +145,7 @@ export default function Checkout() {
       setStatusModal({
         visible: true,
         title: "Location Required",
-        message:
-          "Please set your profile location before placing a delivery order.",
+        message: "Please set your delivery location before placing an order.",
         type: "error",
         redirectToOrders: false,
       });
@@ -166,7 +161,7 @@ export default function Checkout() {
       orderType,
       location: payloadLocation,
       proof: proofImage,
-      referenceId, // ✅ INCLUDED
+      referenceId,
     });
 
     if (result.ok) {
@@ -237,7 +232,49 @@ export default function Checkout() {
         <View className="p-5">
           <CheckoutCartReview />
 
-          {/* ✅ REFERENCE ID INPUT */}
+          {orderType === "delivery" && (
+            <View className="mb-4 bg-white shadow rounded-2xl overflow-hidden">
+              <View className="p-4">
+                <Text className="mb-1 text-base font-semibold">Delivery Location</Text>
+                <Text className="text-xs text-gray-500 mb-3">
+                  {location.full.trim()
+                    ? location.full
+                    : "No location set. Tap the map to pin your delivery address."}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIsEditingLocation((prev) => !prev)}
+                  className="items-center py-2 bg-orange-100 rounded-xl"
+                >
+                  <Text className="font-semibold text-orange-700">
+                    {isEditingLocation ? "Done" : "Change Location"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ height: 220 }}>
+                <MapComponent
+                  editMode={isEditingLocation}
+                  location={{
+                    lat: location.lat,
+                    lng: location.lng,
+                    full: location.full,
+                  }}
+                  setLocation={(loc) => {
+                    if (loc.lat !== null && loc.lng !== null) {
+                      setLocation({
+                        full: loc.full ?? "",
+                        lat: loc.lat as number,
+                        lng: loc.lng as number,
+                      });
+                    }
+                  }}
+                  showSearchBar={isEditingLocation}
+                  interactive={isEditingLocation}
+                />
+              </View>
+            </View>
+          )}
+
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
             <Text className="mb-2 text-base font-semibold">
               Payment Reference ID
@@ -258,7 +295,6 @@ export default function Checkout() {
             </View>
           </View>
 
-          {/* PAYMENT PROOF */}
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
             <Text className="mb-2 text-base font-semibold">
               Payment Proof
@@ -313,9 +349,7 @@ export default function Checkout() {
         title={statusModal.title}
         message={statusModal.message}
         type={statusModal.type}
-        buttonText={
-          statusModal.redirectToOrders ? "Go to Orders" : "OK"
-        }
+        buttonText={statusModal.redirectToOrders ? "Go to Orders" : "OK"}
         onClose={() => setStatusModal((prev) => ({ ...prev, visible: false }))}
       />
     </>
