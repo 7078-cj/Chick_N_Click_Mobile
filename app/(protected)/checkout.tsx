@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/api/user";
 import CheckoutCartReview from "@/components/CheckoutCartReview";
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
@@ -221,7 +222,11 @@ export default function Checkout() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-white">
+      <ScrollView
+        className="flex-1 bg-white"
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET + 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         <ScreenIntro
           eyebrow="Almost there"
           title="Checkout"
@@ -283,7 +288,7 @@ export default function Checkout() {
           <TouchableOpacity
             onPress={handlePlaceOrder}
             disabled={cartCtx.placingOrder}
-            className={`items-center py-4 mb-24 rounded-2xl ${
+            className={`items-center py-4 mb-4 rounded-2xl ${
               cartCtx.placingOrder ? "bg-orange-300" : "bg-orange-500"
             }`}
           >
