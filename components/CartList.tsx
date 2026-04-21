@@ -56,11 +56,11 @@ export default function CartList() {
     });
   };
 
-  // Group: parents first, then attach addons beneath their parent
-  const grouped: GroupedItem[] = [];
-  const addonMap = new Map<number, CartItemType[]>();
+  const cart = CartContext.cart as CartItemType[];
 
-  for (const item of CartContext.cart as CartItemType[]) {
+  // Build addon map keyed by parent food_id
+  const addonMap = new Map<number, CartItemType[]>();
+  for (const item of cart) {
     if (item.is_addon) {
       const parentId = getAddonParentFoodId(item);
       if (parentId != null) {
@@ -70,9 +70,27 @@ export default function CartList() {
     }
   }
 
-  for (const item of CartContext.cart as CartItemType[]) {
+  // Collect parent food_ids that actually exist in cart
+  const parentFoodIds = new Set(
+    cart.filter((i) => !i.is_addon).map((i) => i.food_id)
+  );
+
+  const grouped: GroupedItem[] = [];
+
+  // Add main items with their addons
+  for (const item of cart) {
     if (!item.is_addon) {
       grouped.push({ parent: item, addons: addonMap.get(item.food_id) ?? [] });
+    }
+  }
+
+  // ✅ Add orphaned addons (drinks/sides with no matching parent in cart) as standalone
+  for (const item of cart) {
+    if (item.is_addon) {
+      const parentId = getAddonParentFoodId(item);
+      if (parentId == null || !parentFoodIds.has(parentId)) {
+        grouped.push({ parent: { ...item, is_addon: false }, addons: [] });
+      }
     }
   }
 
@@ -121,7 +139,6 @@ export default function CartList() {
                       onPress={() => toggleCollapse(parent.food_id)}
                       className="flex-row items-center gap-1 ml-4 mb-1 self-start"
                     >
-                      {/* Chevron */}
                       <View
                         style={{
                           transform: [{ rotate: isCollapsed ? '0deg' : '90deg' }],
@@ -131,7 +148,6 @@ export default function CartList() {
                       </View>
                       <Text className="text-xs text-gray-500 font-medium">
                         {addons.length} add-on{addons.length > 1 ? 's' : ''}
-                        {isCollapsed ? '' : ''}
                       </Text>
                     </Pressable>
                   )}

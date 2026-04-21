@@ -1,3 +1,4 @@
+import { fetchCategories, fetchFoods } from "@/api/menu";
 import {
   Category,
   Food,
@@ -5,7 +6,6 @@ import {
   FoodEventMsg,
   FoodProviderProps,
 } from "@/types/Food";
-import { fetchCategories, fetchFoods } from "@/api/menu";
 import React, {
   createContext,
   useContext,
@@ -108,6 +108,7 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
     setFoods((prevFoods) => {
       switch (event) {
         case "created":
+          if (prevFoods.some((f) => f.id === food.id)) return prevFoods; // ✅ prevent duplicate
           return [...prevFoods, food];
         case "updated":
           return prevFoods.map((f) => (f.id === food.id ? food : f));
@@ -158,6 +159,33 @@ export const FoodProvider: React.FC<FoodProviderProps> = ({ children }) => {
         resetFilters,
         isLoading,
         foodSocketReady,
+        fetchFoods: async () => {
+          try {
+            const res = await fetchFoods();
+            const data: Food[] = await res.json();
+            setFoods(data);
+          } catch (err) {
+            console.error("Failed to fetch foods", err);
+          }
+        },
+        fetchCategories: async () => {
+          try {
+            const res = await fetchCategories();
+            const data: { id: number; name: string }[] = await res.json();
+            setCategories(
+              data.map((cat) => ({
+                id: cat.id,
+                name: cat.name,
+                value: cat.id.toString(),
+                label: cat.name,
+              })),
+            );
+          } catch (err) {
+            console.error("Failed to fetch categories", err);
+          }
+        },
+
+      
       }}
     >
       {children}

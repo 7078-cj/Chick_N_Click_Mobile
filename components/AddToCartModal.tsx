@@ -3,7 +3,7 @@ import { COLORS, SHADOW } from "@/constants/theme"; // Using your theme
 import AuthContext from "@/contexts/AuthContext";
 import { useAddOn } from "@/hooks/useAddOn";
 import { useCart } from "@/hooks/useCart";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -19,7 +19,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const AddToCartModal = ({ food, opened, setOpened }: any) => {
   const authCtx = useContext(AuthContext);
   const cartCtx = useCart()
-  const { drinks = [], sides = [] } = useAddOn();
+  const { drinks = [], sides = [], handleRefreshAddOns } = useAddOn();
 
   const [quantity, setQuantity] = useState(1);
   const [orderSides, setOrderSides] = useState<any[]>([]);
@@ -117,6 +117,15 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!opened) {
+      setOrderDrinks([]);
+      setOrderSides([]);
+      setQuantity(1);
+    }
+    handleRefreshAddOns();
+  }, [opened]);
 
   return (
     <Modal visible={opened} animationType="slide" transparent>

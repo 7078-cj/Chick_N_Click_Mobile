@@ -29,6 +29,7 @@ interface Drink {
 interface AddOnContextType {
   sides: Side[];
   drinks: Drink[];
+  handleRefreshAddOns: () => void;
 }
 
 /* =============== CONTEXT =============== */
@@ -79,6 +80,11 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({ children }) => {
     }
   };
 
+  const handleRefreshAddOns = () => {
+    void fetchSides();
+    void fetchDrinks();
+  };
+
   /* =============== EFFECT =============== */
 
   useEffect(() => {
@@ -89,6 +95,7 @@ export const AddOnProvider: React.FC<AddOnProviderProps> = ({ children }) => {
   const context: AddOnContextType = {
     sides,
     drinks,
+    handleRefreshAddOns,
   };
 
   return (

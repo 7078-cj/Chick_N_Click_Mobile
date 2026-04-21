@@ -49,6 +49,8 @@ export type FoodContextType = {
   isLoading: boolean;
   /** Live menu socket connected (or timed out — safe to show UI). */
   foodSocketReady: boolean;
+  fetchFoods: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
 }
 
 export type FoodProviderProps = {

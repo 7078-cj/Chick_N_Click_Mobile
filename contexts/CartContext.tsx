@@ -48,6 +48,7 @@ type PlaceOrderParams = {
   orderType: "delivery" | "pickup";
   location: LocationData;
   proof?: UploadProof | null;
+  referenceId?: string; 
 };
 
 type FetchCartOpts = { silent?: boolean };
@@ -236,7 +237,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
 
   /* ---------- PLACE ORDER ---------- */
 
-  const placeOrder = async ({ orderType, location, proof }: PlaceOrderParams) => {
+  const placeOrder = async ({ orderType, location, proof, referenceId }: PlaceOrderParams) => {
     if (cartRef.current.length === 0) {
       return { ok: false, message: "Your cart is empty." };
     }
@@ -250,6 +251,8 @@ export const CartProvider = ({ children }: ProviderProps) => {
         formData.append("longitude", location.lng.toString());
       }
       if (proof) formData.append("proof_of_payment", proof as any);
+      if (referenceId) formData.append("reference_id", referenceId);
+
 
       const res = await apiPlaceOrder(token as string, formData);
       const data = await res.json();

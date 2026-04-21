@@ -49,6 +49,8 @@ export default function Index() {
 
   useEffect(() => {
     tab?.setActive("Menu");
+    foodCtx.fetchCategories();
+    foodCtx.fetchFoods();
   }, []);
 
   const scrollToCategories = () => {

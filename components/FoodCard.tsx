@@ -17,6 +17,9 @@ type Props = {
 const FoodCard: React.FC<Props> = ({ food }) => {
   const [addOpen, setAddOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  const isAvailable = food.available !== 0; 
+
   const categoriesText =
     food.categories?.map((c) => c.name).join(" • ") || "Popular pick";
 
@@ -24,6 +27,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const onPressIn = () => {
+    if (!isAvailable) return;
     Animated.spring(scale, {
       toValue: 0.98,
       useNativeDriver: true,
@@ -31,6 +35,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
   };
 
   const onPressOut = () => {
+    if (!isAvailable) return;
     Animated.spring(scale, {
       toValue: 1,
       useNativeDriver: true,
@@ -49,7 +54,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
   return (
     <>
       <TouchableWithoutFeedback
-        onPress={() => setAddOpen(true)}
+        onPress={() => isAvailable && setAddOpen(true)} // ✅ block tap when unavailable
         onPressIn={onPressIn}
         onPressOut={onPressOut}
       >
@@ -57,13 +62,14 @@ const FoodCard: React.FC<Props> = ({ food }) => {
           style={[
             {
               transform: [{ scale }],
-              backgroundColor: COLORS.card,
+              backgroundColor: isAvailable ? COLORS.card : "#F3F4F6", // ✅ gray bg
               borderRadius: 20,
               marginBottom: 14,
               paddingVertical: 14,
               paddingHorizontal: 14,
               flexDirection: "row",
               alignItems: "center",
+              opacity: isAvailable ? 1 : 0.6, // ✅ dim entire card
             },
             SHADOW_SOFT,
           ]}
@@ -112,7 +118,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
               style={{
                 fontSize: 17,
                 fontWeight: "800",
-                color: COLORS.text,
+                color: isAvailable ? COLORS.text : "#9CA3AF", // ✅ gray text
               }}
             >
               {food.food_name}
@@ -151,7 +157,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                 style={{
                   fontSize: 16,
                   fontWeight: "800",
-                  color: COLORS.primary,
+                  color: isAvailable ? COLORS.primary : "#9CA3AF", // ✅ gray price
                 }}
               >
                 ₱{food.price}
@@ -159,22 +165,49 @@ const FoodCard: React.FC<Props> = ({ food }) => {
             </View>
           </View>
 
+          {/* ✅ Add button — grayed out when unavailable */}
           <View
             style={{
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: COLORS.primary,
+              backgroundColor: isAvailable ? COLORS.primary : "#D1D5DB",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Ionicons name="add" size={22} color="#fff" />
+            {isAvailable ? (
+              <Ionicons name="add" size={22} color="#fff" />
+            ) : (
+              <Ionicons name="ban-outline" size={18} color="#9CA3AF" />
+            )}
           </View>
+
+          {/* ✅ Unavailable overlay label */}
+          {!isAvailable && (
+            <View
+              style={{
+                position: "absolute",
+                top: 8,
+                left: 8,
+                backgroundColor: "#374151",
+                borderRadius: 8,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
+                Unavailable
+              </Text>
+            </View>
+          )}
         </Animated.View>
       </TouchableWithoutFeedback>
 
-      <AddToCartModal food={food} opened={addOpen} setOpened={setAddOpen} />
+      {/* ✅ Modal only mounts when available */}
+      {isAvailable && (
+        <AddToCartModal food={food} opened={addOpen} setOpened={setAddOpen} />
+      )}
     </>
   );
 };

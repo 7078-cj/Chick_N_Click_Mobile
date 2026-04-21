@@ -69,6 +69,7 @@ export default function OrderDetailModal({
     ? `${order.user.first_name} ${order.user.last_name}`
     : order.user?.name ?? "Customer";
 
+
   return (
     <Modal
       animationType="slide"
@@ -87,6 +88,11 @@ export default function OrderDetailModal({
               <Text className="text-lg font-bold text-gray-900">
                 Order #{order.id}
               </Text>
+              {order.reference_id ? (
+                <Text className="text-xs font-medium text-orange-500">
+                  Ref: {order.reference_id}
+                </Text>
+              ) : null}
               <Text className="text-xs text-gray-500">
                 {new Date(order.created_at).toLocaleString()}
               </Text>
