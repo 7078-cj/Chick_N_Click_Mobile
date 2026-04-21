@@ -131,13 +131,16 @@ export default function Index() {
           <View className="gap-4 px-4 pb-4 mt-4">
 
             {/* Banner */}
-            <View className="rounded-2xl overflow-hidden h-40 bg-orange-50">
+            <View
+              className="rounded-2xl overflow-hidden bg-orange-50 items-center justify-center"
+              style={{ aspectRatio: 2.45 }}
+            >
               <Image
                 source={require("@/assets/images/Logo_banner.png")}
                 style={{
-                  width: "100%",
+                  width: "92%",
                   height: "100%",
-                  resizeMode: "cover",
+                  resizeMode: "contain",
                 }}
               />
             </View>

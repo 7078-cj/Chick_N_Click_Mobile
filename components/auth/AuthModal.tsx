@@ -76,19 +76,27 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
           </View>
 
           {/* Floating logo */}
-          <View className="z-10" style={{ marginBottom: -36 }}>
+          <View
+            className="z-10 items-center justify-center bg-white rounded-full"
+            style={{
+              marginBottom: -36,
+              width: 84,
+              height: 84,
+              borderWidth: 4,
+              borderColor: "white",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
             <Image
               source={require("@/assets/images/Logo_Single.png")}
               style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
-                borderWidth: 4,
-                borderColor: "white",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 3,
+                width: 56,
+                height: 56,
+                resizeMode: "contain",
               }}
             />
           </View>

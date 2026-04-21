@@ -224,9 +224,9 @@ export default function Profile() {
             <Image
               source={require("@/assets/images/hoc_logo.png")}
               style={{
-                width: "100%",
-                height: "100%",
-                resizeMode: "cover",
+                width: "78%",
+                height: "78%",
+                resizeMode: "contain",
               }}
             />
           </View>

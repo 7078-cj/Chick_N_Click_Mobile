@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   Modal,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -88,6 +89,7 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
     food.price * quantity +
     orderSides.reduce((s, i) => s + i.price * i.count, 0) +
     orderDrinks.reduce((s, i) => s + i.price * i.count, 0);
+  const addonsTotal = getSideTotal() + getDrinkTotal();
 
   const handleAddToCart = async () => {
     if (!authCtx?.token) return alert("Please login first");
@@ -133,36 +135,67 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
         <View className="bg-white rounded-t-[40px]" style={{ maxHeight: SCREEN_HEIGHT * 0.9 }}>
           
           {/* Header Bar */}
-          <View className="flex-row justify-between items-center p-6 pb-2">
+          <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
+            <View className="absolute self-center w-12 h-1.5 rounded-full bg-gray-200 top-1" />
             <View>
                 <Text style={{ color: COLORS.text }} className="text-2xl font-bold">{food.food_name}</Text>
                 <Text style={{ color: COLORS.subtext }}>₱{food.price} per unit</Text>
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
                 onPress={() => setOpened(false)}
-                className="bg-gray-100 p-2 rounded-full"
+                className="items-center justify-center bg-gray-100 rounded-full w-9 h-9"
             >
                 <Text className="font-bold text-lg">✕</Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            <Image source={{ uri: food.thumbnail }} className="w-full h-72" resizeMode="cover" />
+            <View style={{ width: "100%", aspectRatio: 1.35, backgroundColor: "#FFF7ED" }}>
+              <Image
+                source={{ uri: food.thumbnail }}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
+            </View>
 
             <View className="p-5">
               {/* QUANTITY SELECTOR */}
-              <View className="flex-row items-center justify-between bg-gray-50 p-4 rounded-2xl mb-6">
+              <View className="p-4 mb-4 bg-gray-50 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-2">
                 <Text className="font-semibold text-lg" style={{ color: COLORS.text }}>Quantity</Text>
                 <View className="flex-row items-center bg-white rounded-xl shadow-sm border border-gray-100">
-                  <TouchableOpacity onPress={() => changeQty(quantity - 1)} className="p-3 px-5">
+                  <Pressable
+                    onPress={() => changeQty(quantity - 1)}
+                    className="items-center justify-center w-12 h-12"
+                  >
                     <Text className="text-xl font-bold" style={{ color: COLORS.primary }}>-</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                   <Text className="px-4 font-bold text-lg">{quantity}</Text>
-                  <TouchableOpacity onPress={() => changeQty(quantity + 1)} className="p-3 px-5">
+                  <Pressable
+                    onPress={() => changeQty(quantity + 1)}
+                    className="items-center justify-center w-12 h-12"
+                  >
                     <Text className="text-xl font-bold" style={{ color: COLORS.primary }}>+</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
+                <Text className="text-xs text-gray-500">
+                  Add-ons per section can be selected up to your meal quantity.
+                </Text>
+              </View>
+
+              {!isSideOrDrink && (
+                <View className="flex-row gap-2 mb-5">
+                  <View className="flex-1 px-3 py-2 rounded-xl bg-orange-50">
+                    <Text className="text-[11px] text-gray-500">Sides</Text>
+                    <Text className="font-bold text-brand">{getSideTotal()} / {quantity}</Text>
+                  </View>
+                  <View className="flex-1 px-3 py-2 rounded-xl bg-orange-50">
+                    <Text className="text-[11px] text-gray-500">Drinks</Text>
+                    <Text className="font-bold text-brand">{getDrinkTotal()} / {quantity}</Text>
+                  </View>
+                </View>
+              )}
 
               {!isSideOrDrink && (
                 <>
@@ -193,24 +226,34 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
                   </View>
                 </>
               )}
-              <View className="h-10" />
+              <View className="h-4" />
             </View>
           </ScrollView>
 
           {/* FOOTER */}
-          <View className="p-6 border-t border-gray-100 bg-white">
-            <View className="flex-row justify-between mb-4">
+          <View className="p-5 border-t border-gray-100 bg-white">
+            <View className="flex-row justify-between mb-1">
                 <Text className="text-gray-500 font-medium">Subtotal</Text>
-                <Text className="font-bold text-lg" style={{ color: COLORS.text }}>₱{totalPrice}</Text>
+                <Text className="font-bold text-base" style={{ color: COLORS.text }}>₱{totalPrice}</Text>
+            </View>
+            <View className="flex-row justify-between mb-4">
+                <Text className="text-xs text-gray-400">Qty {quantity}{addonsTotal > 0 ? ` • ${addonsTotal} add-ons` : ""}</Text>
+                <Text className="text-xs text-gray-400">Ready to add</Text>
             </View>
             <TouchableOpacity
               onPress={handleAddToCart}
               disabled={loading}
+              activeOpacity={0.9}
               style={{ backgroundColor: COLORS.primary, ...SHADOW }}
-              className="py-4 rounded-2xl flex-row justify-center items-center"
+              className="py-4 rounded-2xl flex-row justify-center items-center border border-orange-600"
             >
               {loading ? (
-                <ActivityIndicator color="white" />
+                <View className="flex-row items-center gap-2">
+                  <ActivityIndicator color="white" />
+                  <Text className="text-white text-center font-bold text-base">
+                    Adding to Cart...
+                  </Text>
+                </View>
               ) : (
                 <Text className="text-white text-center font-bold text-lg">
                   Add to Cart • ₱{totalPrice}
