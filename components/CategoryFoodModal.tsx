@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useFood } from "@/hooks/useFood";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import FloatingCart from "./FloatingCart";
 import FoodList from "./FoodList";
 
 interface Props {
@@ -48,6 +50,8 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
       ) : (
         <FoodList />
       )}
+
+      <FloatingCart onPress={() => router.push("/(protected)/cart")} />
     </View>
   );
 }

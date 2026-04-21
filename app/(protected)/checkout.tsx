@@ -9,6 +9,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   Text,
@@ -167,12 +168,17 @@ export default function Checkout() {
       referenceId, // ✅ INCLUDED
     });
 
+    if (result.ok) {
+      router.replace("/(protected)/orders");
+      return;
+    }
+
     setStatusModal({
       visible: true,
-      title: result.ok ? "Success" : "Order Failed",
+      title: "Order Failed",
       message: result.message,
-      type: result.ok ? "success" : "error",
-      redirectToOrders: result.ok,
+      type: "error",
+      redirectToOrders: false,
     });
   };
 
@@ -277,11 +283,22 @@ export default function Checkout() {
           <TouchableOpacity
             onPress={handlePlaceOrder}
             disabled={cartCtx.placingOrder}
-            className="items-center py-4 mb-24 bg-orange-500 rounded-2xl"
+            className={`items-center py-4 mb-24 rounded-2xl ${
+              cartCtx.placingOrder ? "bg-orange-300" : "bg-orange-500"
+            }`}
           >
-            <Text className="text-base font-bold text-white">
-              Place Order
-            </Text>
+            {cartCtx.placingOrder ? (
+              <View className="flex-row items-center gap-2">
+                <ActivityIndicator size="small" color="#fff" />
+                <Text className="text-base font-bold text-white">
+                  Processing Checkout...
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-base font-bold text-white">
+                Place Order
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
