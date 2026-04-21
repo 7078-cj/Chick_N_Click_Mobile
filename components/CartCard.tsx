@@ -20,6 +20,7 @@ type CartCardProps = {
   isOrder?: boolean;
   orderId?: number | null;
   isUpdating?: boolean;
+  onRemove?: (food_id: number) => void;
 };
 
 export default function CartCard({
@@ -31,6 +32,7 @@ export default function CartCard({
   isOrder = false,
   orderId = null,
   isUpdating = false,
+  onRemove,
 }: CartCardProps) {
   const [quantity, setQuantity] = useState(item.quantity);
   const itemRef = useRef(item);
@@ -41,7 +43,6 @@ export default function CartCard({
   }, [item.quantity]);
 
   useEffect(() => {
-    if (item.is_addon) return;
     if (quantity === item.quantity) return;
     const timeout = setTimeout(() => {
       if (!onUpdate) return;
@@ -52,10 +53,10 @@ export default function CartCard({
       });
     }, 450);
     return () => clearTimeout(timeout);
-  }, [quantity, item.quantity, item.is_addon, item.food_id, onUpdate]);
+  }, [quantity, item.quantity, item.food_id, onUpdate]);
 
   const isSelected = selectedItems?.includes(item.food_id);
-  const blockQty = isUpdating || item.is_addon;
+  const blockQty = isUpdating;
 
   return (
     <View className="relative flex-row items-center w-full my-2">
@@ -148,8 +149,14 @@ export default function CartCard({
 
               <Pressable
                 onPress={() => {
-                  if (!blockQty && quantity > 1)
+                  if (blockQty) return;
+                  if (quantity > 1) {
                     setQuantity((prev: number) => prev - 1);
+                    return;
+                  }
+                  if (item.is_addon && onRemove) {
+                    onRemove(item.food_id);
+                  }
                 }}
                 disabled={blockQty}
               >

@@ -58,7 +58,7 @@ type CartContextType = {
   cart: CartItem[];
   total: number;
   loading: boolean;
-  updatingMainFoodId: number | null;
+  updatingFoodId: number | null;
   placingOrder: boolean;
   placeOrder: (params: PlaceOrderParams) => Promise<{ ok: boolean; message: string }>;
   handleUpdate: (foodId: number, newQty: number) => Promise<boolean>;
@@ -132,7 +132,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [updatingMainFoodId, setUpdatingMainFoodId] = useState<number | null>(null);
+  const [updatingFoodId, setUpdatingFoodId] = useState<number | null>(null);
   const [placingOrder, setPlacingOrder] = useState<boolean>(false);
 
   const cartRef = useRef(cart);
@@ -193,19 +193,69 @@ export const CartProvider = ({ children }: ProviderProps) => {
     }
   };
 
-  /* ---------- UPDATE MAIN QUANTITY ---------- */
+  /* ---------- UPDATE QUANTITY (MAIN OR ADD-ON) ---------- */
 
   const handleUpdate = useCallback(async (foodId: number, newQty: number): Promise<boolean> => {
     if (!token) return false;
 
     const current = cartRef.current;
-    const mainItem = current.find((i) => i.food_id === foodId && !i.is_addon);
-    if (!mainItem) return false;
+    const target = current.find((i) => i.food_id === foodId);
+    if (!target) return false;
 
-    const oldQty = Number(mainItem.quantity) || 1;
-    const nextMain = Math.max(1, Math.floor(newQty));
-    if (nextMain === oldQty) return true;
+    const oldQty = Number(target.quantity) || 1;
+    const desiredQty = Math.floor(newQty);
+    if (desiredQty === oldQty) return true;
 
+    // Add-on rules
+    if (target.is_addon) {
+      const parentFoodId = Number(target.parent_food_id);
+      const parent = current.find((i) => !i.is_addon && i.food_id === parentFoodId);
+      if (!parent) return false;
+
+      const mainQty = Number(parent.quantity) || 1;
+      const nextAddonQty = Math.max(0, desiredQty);
+      if (nextAddonQty > mainQty) {
+        Alert.alert("Limit reached", "Add-on quantity cannot be greater than the main food quantity.");
+        return false;
+      }
+
+      const category = target.addon_category;
+      const siblings = current.filter(
+        (i) =>
+          i.is_addon &&
+          i.parent_food_id === parentFoodId &&
+          i.addon_category === category &&
+          i.food_id !== target.food_id,
+      );
+      const siblingsTotal = siblings.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
+      if (siblingsTotal + nextAddonQty > mainQty) {
+        Alert.alert(
+          "Limit reached",
+          "Total quantity of different add-ons in this group cannot exceed the main food quantity.",
+        );
+        return false;
+      }
+
+      setUpdatingFoodId(foodId);
+      try {
+        if (nextAddonQty <= 0) {
+          await removeCartItem(foodId);
+        } else {
+          await postLineQuantity(foodId, nextAddonQty);
+          await fetchCart({ silent: true });
+        }
+        return true;
+      } catch (err) {
+        console.error(err);
+        Alert.alert("Update Failed", "Unable to update add-on quantity.");
+        await fetchCart({ silent: true });
+        return false;
+      } finally {
+        setUpdatingFoodId(null);
+      }
+    }
+
+    const nextMain = Math.max(1, desiredQty);
     if (nextMain < oldQty) {
       const linked = getLinkedAddons(current, foodId);
       const over = getOverCapCategories(linked, nextMain);
@@ -216,10 +266,8 @@ export const CartProvider = ({ children }: ProviderProps) => {
       }
     }
 
-    setUpdatingMainFoodId(foodId);
+    setUpdatingFoodId(foodId);
     try {
-      // Send only the new main quantity — backend capAddonQuantitiesToMain
-      // trims sides and drinks per-category automatically.
       await postLineQuantity(foodId, nextMain);
       await fetchCart({ silent: true });
       return true;
@@ -229,7 +277,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
       await fetchCart({ silent: true });
       return false;
     } finally {
-      setUpdatingMainFoodId(null);
+      setUpdatingFoodId(null);
     }
   }, [token, fetchCart]);
 
@@ -278,7 +326,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
       cart,
       total,
       loading,
-      updatingMainFoodId,
+      updatingFoodId,
       placingOrder,
       placeOrder,
       handleUpdate,

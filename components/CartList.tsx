@@ -115,7 +115,7 @@ export default function CartList() {
           >
             {grouped.map(({ parent, addons }) => {
               const isCollapsed = collapsedGroups.has(parent.food_id);
-              const updatingId = CartContext.updatingMainFoodId;
+              const updatingId = CartContext.updatingFoodId;
               const isParentUpdating =
                 updatingId != null && parent.food_id === updatingId;
 
@@ -130,6 +130,7 @@ export default function CartList() {
                       selectedItems={selectedItems}
                       isUpdating={isParentUpdating}
                       selected={selectedItems.includes(parent.food_id)}
+                      onRemove={CartContext.handleRemove}
                     />
                   </Pressable>
 
@@ -157,7 +158,7 @@ export default function CartList() {
                     <View className="ml-6 pl-3 border-l-2 border-orange-200">
                       {addons.map((addon) => {
                         const isAddonUpdating =
-                          updatingId != null && getAddonParentFoodId(addon) === updatingId;
+                          updatingId != null && addon.food_id === updatingId;
                         return (
                           <CartCard
                             key={addon.food_id}
@@ -165,6 +166,7 @@ export default function CartList() {
                             onUpdate={CartContext.handleUpdate}
                             selectedItems={selectedItems}
                             isUpdating={isAddonUpdating}
+                            onRemove={CartContext.handleRemove}
                           />
                         );
                       })}
