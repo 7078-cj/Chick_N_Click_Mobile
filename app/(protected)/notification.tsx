@@ -1,11 +1,12 @@
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useNotification } from "@/hooks/useNotification";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -16,6 +17,8 @@ export default function Notification() {
     markAsRead,
     removeNotification,
   } = useNotification();
+
+  useEffect(() => {}, []);
 
   return (
     <View className="flex-1 bg-white">
@@ -40,8 +43,14 @@ export default function Notification() {
               const isUnread = !item.is_read;
 
               return (
-                <View
+                <TouchableOpacity
                   key={item.id}
+                  onPress={() => {
+                    if (!item.is_read) {
+                      markAsRead(item.id);
+                    }
+                  }}
+                  activeOpacity={0.8}
                   className={`p-4 mb-3 rounded-2xl border ${
                     isUnread
                       ? "bg-orange-50 border-orange-200"
@@ -55,34 +64,30 @@ export default function Notification() {
                     elevation: 2,
                   }}
                 >
-                  {/* TITLE (tap to mark as read) */}
-                  <Text
-                    onPress={() => markAsRead(item.id)}
-                    className="mb-1 text-base font-semibold text-gray-900"
-                  >
+                  <Text className="mb-1 text-base font-semibold text-gray-900">
                     {isUnread ? "🔔 " : "✔️ "} {item.title}
                   </Text>
 
-                  {/* BODY */}
                   <Text className="text-sm text-gray-600">
                     {item.body}
                   </Text>
 
-                  {/* FOOTER */}
                   <View className="flex-row items-center justify-between mt-2">
                     <Text className="text-xs text-gray-400">
                       {new Date(item.created_at).toLocaleString()}
                     </Text>
 
-                    {/* DELETE */}
                     <Text
-                      onPress={() => removeNotification(item.id)}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        removeNotification(item.id);
+                      }}
                       className="text-xs text-red-400"
                     >
                       Delete
                     </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </ScrollView>
