@@ -1,6 +1,6 @@
 import { COLORS } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
-import { TabContext } from "@/contexts/TabContext";
+import { useNotification } from "@/hooks/useNotification";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext } from "react";
@@ -8,13 +8,10 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Header() {
   const auth = useContext(AuthContext);
-  const tab = useContext(TabContext); 
 
   const firstName = auth?.user?.first_name?.trim();
   const greetName = firstName ? firstName.split(/\s+/)[0] : null;
-
-  
-  const unreadCount = tab?.badges?.Notifications || 0;
+  const { unreadCount } = useNotification();
 
   return (
     <View

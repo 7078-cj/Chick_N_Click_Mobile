@@ -1,12 +1,7 @@
-import {
-  fetchNotifications as apiFetchNotifications,
-  deleteNotification,
-  markNotificationAsRead
-} from "@/api/notifications";
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
-import AuthContext from "@/contexts/AuthContext";
-import { TabContext } from "@/contexts/TabContext";
-import React, { useContext, useEffect, useState } from "react";
+import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
+import { useNotification } from "@/hooks/useNotification";
+import React from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -14,118 +9,13 @@ import {
   View,
 } from "react-native";
 
-type AppNotification = {
-  id: number;
-  title: string;
-  body: string;
-  created_at: string;
-  is_read?: boolean;
-};
-
 export default function Notification() {
-  const auth = useContext(AuthContext);
-  const tab = useContext(TabContext);
-
-  const [loading, setLoading] = useState(true);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-
-  const wsUrl = process.env.EXPO_PUBLIC_WS_URL;
-
-  /**
-   * Fetch notifications
-   */
-  const fetchNotifications = async () => {
-    try {
-      if (!auth?.token) return;
-      setLoading(true);
-
-      const res = await apiFetchNotifications(auth.token);
-      if (!res.ok) throw new Error("Failed to fetch notifications");
-
-      const data = await res.json();
-      setNotifications(data?.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Mark as read
-   */
-  const handleMarkAsRead = async (id: number) => {
-    if (!auth?.token) return;
-
-    try {
-      await markNotificationAsRead(auth.token, id);
-
-      // update UI instantly
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  /**
-   * Delete notification
-   */
-  const handleDelete = async (id: number) => {
-    if (!auth?.token) return;
-
-    try {
-      await deleteNotification(auth.token, id);
-
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  /**
-   * Unread count
-   */
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
-  /**
-   * Initial load
-   */
-  useEffect(() => {
-    tab?.setActive("Notifications");
-    fetchNotifications();
-  }, [auth?.token]);
-
-  /**
-   * Update badge count (if supported)
-   */
-  useEffect(() => {
-    tab?.setBadge?.("Notifications", unreadCount);
-  }, [unreadCount]);
-
-  /**
-   * WebSocket real-time updates
-   */
-  useEffect(() => {
-    if (!auth?.user?.id || !wsUrl) return;
-
-    const ws = new WebSocket(`${wsUrl}/ws/notify/${auth.user.id}`);
-
-    ws.onmessage = (e) => {
-      try {
-        const msg = JSON.parse(e.data);
-
-        if (msg.type === "notification") {
-          fetchNotifications();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    return () => ws.close();
-  }, [auth?.user?.id, wsUrl]);
+  const {
+    loading,
+    notifications,
+    markAsRead,
+    removeNotification,
+  } = useNotification();
 
   return (
     <View className="flex-1 bg-white">
@@ -144,7 +34,7 @@ export default function Notification() {
         ) : notifications.length ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
           >
             {notifications.map((item) => {
               const isUnread = !item.is_read;
@@ -167,7 +57,7 @@ export default function Notification() {
                 >
                   {/* TITLE (tap to mark as read) */}
                   <Text
-                    onPress={() => handleMarkAsRead(item.id)}
+                    onPress={() => markAsRead(item.id)}
                     className="mb-1 text-base font-semibold text-gray-900"
                   >
                     {isUnread ? "🔔 " : "✔️ "} {item.title}
@@ -186,7 +76,7 @@ export default function Notification() {
 
                     {/* DELETE */}
                     <Text
-                      onPress={() => handleDelete(item.id)}
+                      onPress={() => removeNotification(item.id)}
                       className="text-xs text-red-400"
                     >
                       Delete

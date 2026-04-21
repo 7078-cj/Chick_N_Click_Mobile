@@ -6,6 +6,7 @@ import { AddOnProvider } from "@/contexts/AddOnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { FoodProvider } from "@/contexts/FoodContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { OrderProvider } from "@/contexts/OrderContext";
 import { TabProvider } from "@/contexts/TabContext";
 import { Stack } from "expo-router";
@@ -23,17 +24,19 @@ export default function RootLayout({
       <AuthProvider>
         <FoodProvider>
           <OrderProvider>
-            <CartProvider>
-              <AddOnProvider>
-                <AppBootstrapGate>
-                  <SafeAreaView className="flex-1 bg-white">
-                    <Header />
-                    <Stack screenOptions={{ headerShown: false }} />
-                    <Tabs />
-                  </SafeAreaView>
-                </AppBootstrapGate>
-              </AddOnProvider>
-            </CartProvider>
+            <NotificationProvider>
+              <CartProvider>
+                <AddOnProvider>
+                  <AppBootstrapGate>
+                    <SafeAreaView className="flex-1 bg-white">
+                      <Header />
+                      <Stack screenOptions={{ headerShown: false }} />
+                      <Tabs />
+                    </SafeAreaView>
+                  </AppBootstrapGate>
+                </AddOnProvider>
+              </CartProvider>
+            </NotificationProvider>
           </OrderProvider>
         </FoodProvider>
       </AuthProvider>
