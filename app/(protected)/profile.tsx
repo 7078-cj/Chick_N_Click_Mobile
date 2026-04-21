@@ -5,7 +5,6 @@ import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -17,7 +16,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 type LocationState = {
@@ -71,7 +70,7 @@ export default function Profile() {
     fetchUser();
   }, []);
 
-  // ✅ Sync location → form safely
+  // Sync location → form safely
   useEffect(() => {
     if (!hasValidCoordinates(location.lat, location.lng)) return;
 
@@ -91,6 +90,7 @@ export default function Profile() {
       const res = await getCurrentUser(token);
       if (!res.ok) throw new Error(`Status: ${res.status}`);
       const data = await res.json();
+
       const latitude =
         data.latitude !== null && data.latitude !== undefined
           ? Number(data.latitude)
@@ -171,9 +171,7 @@ export default function Profile() {
           ? firstValidationError[0]
           : firstValidationError;
         throw new Error(
-          validationMessage ||
-            data?.message ||
-            `Status: ${res.status}`,
+          validationMessage || data?.message || `Status: ${res.status}`
         );
       }
 
@@ -209,146 +207,163 @@ export default function Profile() {
   // ── UI ──────────────────────────────────
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
+      className="flex-1 bg-[#F5F5F5]"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        className="flex-1"
         contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pt-14 pb-5">
 
-          <View className="w-16 h-16 rounded-full bg-orange-50 items-center justify-center shadow overflow-hidden">
+        <View className="items-center" style={{ paddingTop: 80 }}>
+
+          {/* FLOATING LOGO — sits above the card */}
+          <View
+            style={{
+              position: "absolute",
+              top: 20,           
+              zIndex: 10,
+              backgroundColor: "#fff",
+              borderRadius: 60,
+              padding: 6,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.12,
+              shadowRadius: 6,
+              elevation: 6,
+            }}
+          >
             <Image
-              source={require("@/assets/images/hoc_logo.png")}
-              style={{
-                width: "78%",
-                height: "78%",
-                resizeMode: "contain",
-              }}
+              source={require("@/assets/images/Logo_Single.png")}
+              style={{ width: 90, height: 90, resizeMode: "contain" }}
             />
           </View>
 
-          <TouchableOpacity
-            onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
-            disabled={saving}
-            className="w-10 h-10 rounded-full bg-orange-500 items-center justify-center shadow"
+          {/* CARD */}
+          <View
+            className="w-[92%] bg-white rounded-[30px] px-5 pb-6"
+            style={{
+              // paddingTop gives space for the logo that overlaps from above
+              paddingTop: 64,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 4,
+            }}
           >
-            {saving ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <MaterialIcons
-                name={isEditing ? "check" : "edit"}
-                size={18}
-                color="#fff"
-              />
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Card */}
-        <View className="mx-4 bg-white rounded-3xl p-5 shadow">
-          <Text className="text-xl font-bold text-center text-gray-900 mb-5">
-            Account Settings
-          </Text>
-
-          {/* Personal Info */}
-          <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
-            Personal Information
-          </Text>
-
-          <View className="flex-row gap-2">
-            <TextInput
-              className="flex-1 bg-gray-50 border rounded-xl px-3.5 py-3 mb-2"
-              placeholder="First Name"
-              value={formData.first_name}
-              editable={isEditing}
-              onChangeText={(v) =>
-                setFormData((p) => ({ ...p, first_name: v }))
-              }
-            />
-            <TextInput
-              className="flex-1 bg-gray-50 border rounded-xl px-3.5 py-3 mb-2"
-              placeholder="Last Name"
-              value={formData.last_name}
-              editable={isEditing}
-              onChangeText={(v) =>
-                setFormData((p) => ({ ...p, last_name: v }))
-              }
-            />
-          </View>
-
-          <TextInput
-            className="bg-gray-50 border rounded-xl px-3.5 py-3 mb-2"
-            placeholder="+639XXXXXXXXX"
-            value={formData.phone_number}
-            editable={isEditing}
-            keyboardType="phone-pad"
-            onChangeText={(v) =>
-              setFormData((p) => ({ ...p, phone_number: v }))
-            }
-          />
-
-          <TextInput
-            className="bg-gray-50 border rounded-xl px-3.5 py-3 mb-2"
-            placeholder="Add Note"
-            value={formData.note}
-            editable={isEditing}
-            onChangeText={(v) =>
-              setFormData((p) => ({ ...p, note: v }))
-            }
-          />
-
-          {/* Location */}
-          <Text className="text-xs font-semibold text-gray-400 mt-4 mb-2">
-            Your Location
-          </Text>
-
-          <View className="bg-orange-50 border rounded-xl p-3 mb-3">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="location-outline" size={16} color="#F97316" />
-              <Text className="flex-1 text-sm font-semibold">
-                {location.full || formData.location || "Location not set"}
-              </Text>
-            </View>
-          </View>
-
-          {/* ✅ FIXED MAP */}
-          <View className="rounded-2xl overflow-hidden h-60">
-            <MapComponent
-              editMode={isEditing}
-              location={location}
-              setLocation={setLocation}
-            />
-          </View>
-
-          {isEditing && (
-            <Text className="text-xs text-orange-500 text-center mt-2">
-              Tap or search to update your location
+            {/* TITLE */}
+            <Text className="text-lg font-bold text-center text-gray-800 mb-4">
+              Account Settings
             </Text>
-          )}
 
-          {/* Logout */}
-          <TouchableOpacity
-            onPress={() => auth?.logoutUser()}
-            className="mt-5 bg-red-500 rounded-2xl py-4 items-center"
-          >
-            <Text className="text-white font-bold">Logout</Text>
-          </TouchableOpacity>
+            {/* SECTION LABEL */}
+            <Text className="text-gray-400 mb-2">Personal Information</Text>
+
+            {/* NAME ROW */}
+            <View className="flex-row gap-2">
+              <TextInput
+                className="flex-1 bg-[#F3F3F3] rounded-xl px-4 py-3 mb-2"
+                placeholder="First Name"
+                value={formData.first_name}
+                editable={isEditing}
+                onChangeText={(v) =>
+                  setFormData((p) => ({ ...p, first_name: v }))
+                }
+              />
+              <TextInput
+                className="flex-1 bg-[#F3F3F3] rounded-xl px-4 py-3 mb-2"
+                placeholder="Last Name"
+                value={formData.last_name}
+                editable={isEditing}
+                onChangeText={(v) =>
+                  setFormData((p) => ({ ...p, last_name: v }))
+                }
+              />
+            </View>
+
+            {/* PHONE */}
+            <TextInput
+              className="bg-[#F3F3F3] rounded-xl px-4 py-3 mb-2"
+              placeholder="+639XXXXXXXXX"
+              value={formData.phone_number}
+              editable={isEditing}
+              onChangeText={(v) =>
+                setFormData((p) => ({ ...p, phone_number: v }))
+              }
+            />
+
+            {/* NOTE */}
+            <TextInput
+              className="bg-[#F3F3F3] rounded-xl px-4 py-3 mb-3"
+              placeholder="Add Note"
+              value={formData.note}
+              editable={isEditing}
+              onChangeText={(v) =>
+                setFormData((p) => ({ ...p, note: v }))
+              }
+            />
+
+            {/* LOCATION SECTION */}
+            <Text className="text-gray-400 mt-2 mb-2">Your Location</Text>
+
+            <View className="bg-[#F3F3F3] rounded-2xl p-4">
+              {/* 
+
+              <View className="flex-row items-center mb-3">
+                <Ionicons name="location-outline" size={16} color="#F97316" />
+                <Text
+                  className="ml-2 font-semibold text-gray-800 flex-1"
+                  numberOfLines={2}
+                >
+                  {location.full || "Location not set"}
+                </Text>
+              </View>
+
+              {/* MAP — FIX: overflow hidden so the map stays clipped inside the card */}
+              <View style={{ borderRadius: 12, overflow: "hidden", height: 280 }}>
+                <MapComponent
+                  editMode={isEditing}
+                  location={location}
+                  setLocation={setLocation}
+                  showSearchBar={isEditing}
+                />
+              </View>
+            </View>
+
+            {/* EDIT / SAVE BUTTON */}
+            <TouchableOpacity
+              onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
+              disabled={saving}
+              className="mt-4 bg-orange-500 rounded-full py-3 items-center"
+            >
+              {saving ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white font-bold">
+                  {isEditing ? "Save Changes" : "Edit Profile"}
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            {/* LOGOUT */}
+            <TouchableOpacity
+              onPress={() => auth?.logoutUser()}
+              className="mt-3 bg-red-500 rounded-full py-3 items-center"
+            >
+              <Text className="text-white font-bold">Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
+
       <RequestStatusModal
         visible={statusModal.visible}
         title={statusModal.title}
         message={statusModal.message}
         type={statusModal.type}
         onClose={() =>
-          setStatusModal((prev) => ({
-            ...prev,
-            visible: false,
-          }))
+          setStatusModal((prev) => ({ ...prev, visible: false }))
         }
       />
     </KeyboardAvoidingView>

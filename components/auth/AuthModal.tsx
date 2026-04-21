@@ -1,7 +1,14 @@
 import { TabContext } from "@/contexts/TabContext";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
-import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Login from "./Login";
 import Register from "./Register";
 
@@ -10,7 +17,10 @@ type AuthModalProps = {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function AuthModal({ visible, setVisible }: AuthModalProps) {
+export default function AuthModal({
+  visible,
+  setVisible,
+}: AuthModalProps) {
   const tab = useContext(TabContext);
   const [page, setPage] = useState<"login" | "sign-up">("login");
 
@@ -21,7 +31,7 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
+    <Modal visible={visible} animationType="slide" transparent>
       <View className="items-center justify-center flex-1 bg-black/40">
         <ScrollView
           contentContainerStyle={{
@@ -34,7 +44,7 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
           showsVerticalScrollIndicator={false}
           className="w-full"
         >
-          {/* Close button — floats above the card, top-right */}
+          {/* CLOSE BUTTON */}
           <View
             className="items-end w-11/12"
             style={{ marginBottom: -20, zIndex: 20 }}
@@ -45,7 +55,6 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
               className="items-center justify-center bg-white rounded-full shadow w-9 h-9"
               style={{ elevation: 4 }}
             >
-              {/* × icon drawn with two rotated lines */}
               <View style={{ width: 14, height: 14, position: "relative" }}>
                 <View
                   style={{
@@ -53,9 +62,7 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
                     width: 14,
                     height: 1.5,
                     backgroundColor: "#6b7280",
-                    borderRadius: 2,
                     top: 6,
-                    left: 0,
                     transform: [{ rotate: "45deg" }],
                   }}
                 />
@@ -65,9 +72,7 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
                     width: 14,
                     height: 1.5,
                     backgroundColor: "#6b7280",
-                    borderRadius: 2,
                     top: 6,
-                    left: 0,
                     transform: [{ rotate: "-45deg" }],
                   }}
                 />
@@ -75,54 +80,65 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Floating logo */}
+          {/* CARD + LOGO WRAPPER */}
           <View
-            className="z-10 items-center justify-center bg-white rounded-full"
-            style={{
-              marginBottom: -36,
-              width: 84,
-              height: 84,
-              borderWidth: 4,
-              borderColor: "white",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 4,
-              elevation: 3,
-            }}
+            className="w-11/12 items-center"
+            style={{ position: "relative" }}
           >
-            <Image
-              source={require("@/assets/images/Logo_Single.png")}
+            {/* 🔥 FLOATING LOGO */}
+            <View
               style={{
-                width: 56,
-                height: 56,
-                resizeMode: "contain",
+                position: "absolute",
+                top: -45, // controls overlap
+                alignSelf: "center",
+                zIndex: 30,
+                backgroundColor: "#fff",
+                borderRadius: 50,
+                padding: 6,
+                shadowColor: "#000",
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+                elevation: 6,
               }}
-            />
-          </View>
+            >
+              <Image
+                source={require("@/assets/images/Logo_Single.png")}
+                style={{
+                  width: 80,
+                  height: 80,
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
 
-          {/* Card */}
-          <View
-            className="items-center w-11/12 px-6 bg-white shadow-lg rounded-3xl pb-7"
-            style={{ paddingTop: 52 }}
-          >
-            {/* Title only — close button is now outside the card */}
-            <Text className="mb-5 text-lg font-bold text-center text-gray-900">
-              {page === "login" ? "Sign in your Account" : "Create an Account"}
-            </Text>
+            {/* CARD */}
+            <View
+              className="items-center w-full px-6 bg-white shadow-lg rounded-3xl pb-7"
+              style={{
+                paddingTop: 60, // space for logo
+              }}
+            >
+              {/* TITLE */}
+              <Text className="mb-5 text-lg font-bold text-center text-gray-900">
+                {page === "login"
+                  ? "Sign in your Account"
+                  : "Create an Account"}
+              </Text>
 
-            <View className="w-full">
-              {page === "login" ? (
-                <Login
-                  setVisible={setVisible}
-                  onGoToSignUp={() => setPage("sign-up")}
-                />
-              ) : (
-                <Register
-                  onGoToLogin={() => setPage("login")}
-                  setVisible={setVisible}
-                />
-              )}
+              {/* CONTENT */}
+              <View className="w-full">
+                {page === "login" ? (
+                  <Login
+                    setVisible={setVisible}
+                    onGoToSignUp={() => setPage("sign-up")}
+                  />
+                ) : (
+                  <Register
+                    onGoToLogin={() => setPage("login")}
+                    setVisible={setVisible}
+                  />
+                )}
+              </View>
             </View>
           </View>
         </ScrollView>

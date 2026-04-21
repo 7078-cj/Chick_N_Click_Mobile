@@ -185,8 +185,6 @@ export const CartProvider = ({ children }: ProviderProps) => {
       if (!res.ok) throw new Error("Failed to remove cart item");
       await fetchCart({ silent: true });
     } catch (err) {
-      console.error(err);
-      Alert.alert("Remove Failed", "Unable to remove item from cart.");
       await fetchCart({ silent: true });
     } finally {
       setLoading(false);

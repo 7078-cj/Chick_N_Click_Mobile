@@ -4,7 +4,7 @@ import { useNotification } from "@/hooks/useNotification";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function Header() {
   const auth = useContext(AuthContext);
@@ -20,43 +20,26 @@ export default function Header() {
         borderBottomColor: "rgba(0, 0, 0, 0.06)",
       }}
     >
-      <View className="flex-1 pr-2">
-        <Text className="text-xs tracking-wide text-gray-600">
-          {greetName ? (
-            <>
-              Hi,{" "}
-              <Text className="font-semibold text-gray-900">
-                {greetName}
-              </Text>
-            </>
-          ) : (
-            "Welcome"
-          )}
-        </Text>
-
-        <Text className="mt-0.5 text-xl font-extrabold text-gray-900">
-          Chick N{" "}
-          <Text style={{ color: COLORS.primary }}>Click</Text>
-        </Text>
-
-        <Text
-          className="mt-0.5 text-xs font-medium"
-          style={{ color: COLORS.primary }}
-          numberOfLines={1}
-        >
-          Don&apos;t wait — order your food!
-        </Text>
+      <View className="flex-1 pr-2 h-[10%]">
+        <Image
+          source={require("@/assets/images/Logo_banner.png")}
+          style={{
+            width: "40%",
+            height: 79,
+            resizeMode: "stretch",
+          }}
+        />
       </View>
 
       <View className="flex-row items-center gap-2">
         <TouchableOpacity
           onPress={() => router.push("/(protected)/notification")}
-          className="items-center justify-center w-10 h-10 rounded-full bg-brand-surface border border-gray-100"
+          className="items-center justify-center w-15 h-15 rounded-full bg-brand-surface border border-gray-100"
           style={{ position: "relative" }} 
         >
           <Ionicons
             name="notifications-outline"
-            size={20}
+            size={35}
             color={COLORS.primary}
           />
 

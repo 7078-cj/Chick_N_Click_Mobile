@@ -15,7 +15,6 @@ import React, {
 } from "react";
 import {
   findNodeHandle,
-  Image,
   Modal,
   ScrollView,
   Text,
@@ -130,20 +129,6 @@ export default function Index() {
         {!isSearching ? (
           <View className="gap-4 px-4 pb-4 mt-4">
 
-            {/* Banner */}
-            <View
-              className="rounded-2xl overflow-hidden bg-orange-50 items-center justify-center"
-              style={{ aspectRatio: 2.45 }}
-            >
-              <Image
-                source={require("@/assets/images/Logo_banner.png")}
-                style={{
-                  width: "92%",
-                  height: "100%",
-                  resizeMode: "contain",
-                }}
-              />
-            </View>
             <View ref={categoriesRef}>
               <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-lg font-bold text-gray-900">
