@@ -55,7 +55,7 @@ export default function Header() {
         <TouchableOpacity
           onPress={() => router.push("/(protected)/notification")}
           className="items-center justify-center w-10 h-10 rounded-full bg-brand-surface border border-gray-100"
-          style={{ position: "relative" }} // ✅ needed for badge
+          style={{ position: "relative" }} 
         >
           <Ionicons
             name="notifications-outline"

@@ -1,7 +1,7 @@
 import { TabContext } from "@/contexts/TabContext";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Login from "./Login";
 import Register from "./Register";
 
@@ -9,14 +9,6 @@ type AuthModalProps = {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
-function LogoPlaceholder() {
-  return (
-    <View className="items-center justify-center w-20 h-20 bg-orange-100 border-4 border-white rounded-full shadow-md">
-      <Text className="text-4xl">🍗</Text>
-    </View>
-  );
-}
 
 export default function AuthModal({ visible, setVisible }: AuthModalProps) {
   const tab = useContext(TabContext);
@@ -85,7 +77,20 @@ export default function AuthModal({ visible, setVisible }: AuthModalProps) {
 
           {/* Floating logo */}
           <View className="z-10" style={{ marginBottom: -36 }}>
-            <LogoPlaceholder />
+            <Image
+              source={require("@/assets/images/Logo_Single.png")}
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 40,
+                borderWidth: 4,
+                borderColor: "white",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3,
+              }}
+            />
           </View>
 
           {/* Card */}

@@ -15,12 +15,13 @@ import React, {
 } from "react";
 import {
   findNodeHandle,
+  Image,
   Modal,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function Index() {
@@ -129,7 +130,17 @@ export default function Index() {
         {!isSearching ? (
           <View className="gap-4 px-4 pb-4 mt-4">
 
-
+            {/* Banner */}
+            <View className="rounded-2xl overflow-hidden h-40 bg-orange-50">
+              <Image
+                source={require("@/assets/images/Logo_banner.png")}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "cover",
+                }}
+              />
+            </View>
             <View ref={categoriesRef}>
               <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-lg font-bold text-gray-900">

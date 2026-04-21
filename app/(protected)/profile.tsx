@@ -10,13 +10,14 @@ import { useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 type LocationState = {
@@ -219,8 +220,15 @@ export default function Profile() {
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 pt-14 pb-5">
 
-          <View className="w-16 h-16 rounded-full bg-orange-50 items-center justify-center shadow">
-            <Text className="text-3xl">🍗</Text>
+          <View className="w-16 h-16 rounded-full bg-orange-50 items-center justify-center shadow overflow-hidden">
+            <Image
+              source={require("@/assets/images/hoc_logo.png")}
+              style={{
+                width: "100%",
+                height: "100%",
+                resizeMode: "cover",
+              }}
+            />
           </View>
 
           <TouchableOpacity
