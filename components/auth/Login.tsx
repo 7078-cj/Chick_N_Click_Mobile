@@ -103,18 +103,6 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
         </TouchableOpacity>
       </View>
 
-      {/* Remember Me */}
-      <TouchableOpacity
-        onPress={() => setRememberMe(!rememberMe)}
-        className="flex-row items-center mb-5"
-      >
-        <View
-          className={`w-4 h-4 rounded border mr-2 items-center justify-center ${rememberMe ? "bg-orange-400 border-orange-400" : "border-gray-300 bg-white"}`}
-        >
-          {rememberMe && <Ionicons name="checkmark" size={11} color="#fff" />}
-        </View>
-        <Text className="text-sm text-gray-500">Remember Me</Text>
-      </TouchableOpacity>
 
       {/* Login Button */}
       <TouchableOpacity

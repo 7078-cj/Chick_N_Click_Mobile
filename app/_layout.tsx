@@ -28,7 +28,7 @@ export default function RootLayout({
               <CartProvider>
                 <AddOnProvider>
                   <AppBootstrapGate>
-                    <SafeAreaView className="flex-1 bg-white">
+                    <SafeAreaView className="flex-1 flex-col bg-white justify-start">
                       <Header />
                       <Stack screenOptions={{ headerShown: false }} />
                       <Tabs />

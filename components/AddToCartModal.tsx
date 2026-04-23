@@ -131,7 +131,7 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
 
   return (
     <Modal visible={opened} animationType="slide" transparent>
-      <View className="flex-1 justify-end" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <View className="flex-1 justify-end mt-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <View className="bg-white rounded-t-[40px]" style={{ maxHeight: SCREEN_HEIGHT * 0.9 }}>
           
           {/* Header Bar */}

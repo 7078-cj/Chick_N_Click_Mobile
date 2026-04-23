@@ -15,18 +15,17 @@ export default function Header() {
 
   return (
     <View
-      className="flex-row items-center justify-between px-4 py-3 border-b bg-white"
+      className="flex-row items-center justify-between px-4 border-b bg-white"
       style={{
         borderBottomColor: "rgba(0, 0, 0, 0.06)",
       }}
     >
-      <View className="flex-1 pr-2 h-[10%]">
+      <View className="flex-1">
         <Image
           source={require("@/assets/images/Logo_banner.png")}
           style={{
             width: "40%",
-            height: 79,
-            resizeMode: "stretch",
+            resizeMode: "contain",
           }}
         />
       </View>
@@ -34,12 +33,12 @@ export default function Header() {
       <View className="flex-row items-center gap-2">
         <TouchableOpacity
           onPress={() => router.push("/(protected)/notification")}
-          className="items-center justify-center w-15 h-15 rounded-full bg-brand-surface border border-gray-100"
+          className="items-center justify-center w-15 h-15 rounded-full bg-brand-surface border border-gray-100 p-2"
           style={{ position: "relative" }} 
         >
           <Ionicons
             name="notifications-outline"
-            size={35}
+            size={25}
             color={COLORS.primary}
           />
 

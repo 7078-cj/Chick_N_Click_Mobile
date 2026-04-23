@@ -84,7 +84,7 @@ export default function Index() {
       >
         {/* Header */}
         <View
-          className="px-4 pt-3 pb-4 mb-1 bg-white border-b rounded-b-3xl"
+          className="px-4 pb-4 mb-1 bg-white border-b rounded-b-3xl"
           style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
         >
           <Text className="text-xs tracking-wider text-gray-600 uppercase">

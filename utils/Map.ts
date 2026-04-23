@@ -1,6 +1,6 @@
 import { coordinate, route } from "@/types/Map";
+import { CameraRef } from "@maplibre/maplibre-react-native";
 import { Alert } from "react-native";
-import MapView from "react-native-maps";
 
 const NOMINATIM_HEADERS = {
   "User-Agent": "ReactNativeApp/1.0 (7078ceejay@gmail.com)",
@@ -57,7 +57,7 @@ export const fetchRoute = async ({ start, end, setRouteCoords }: route) => {
 
 export const handleSearch = async (
   search: string,
-  mapRef: React.RefObject<MapView | null>,
+  cameraRef: React.RefObject<CameraRef | null>,
   setSearch: any,
   setLocation: any,
 ) => {
@@ -65,7 +65,7 @@ export const handleSearch = async (
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(search)}&format=json&limit=1`,
-      { headers: NOMINATIM_HEADERS }, // ← shared headers, consistent with ReverseGeolocation
+      { headers: NOMINATIM_HEADERS },
     );
 
     if (!res.ok) {
@@ -91,15 +91,11 @@ export const handleSearch = async (
       full: result.display_name,
     };
 
-    mapRef.current?.animateToRegion(
-      {
-        latitude: lat,
-        longitude: lng,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      },
-      1000,
-    );
+    // replaces animateToRegion — flyTo with duration
+    cameraRef.current?.flyTo({
+      center: [lng, lat],
+      duration: 1000,
+    });
 
     setLocation(loc);
     setSearch("");

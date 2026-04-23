@@ -12,7 +12,7 @@ export default function Tabs() {
   ];
 
   return (
-    <View className="absolute items-center w-full bottom-[4.5%]">
+    <View className="absolute items-center w-full bottom-[6.5%]">
       <View className="flex-row rounded-3xl px-3 py-2.5 w-[92%] justify-between items-center bg-white shadow-lg border border-gray-100">
         {paths.map((path, index) => (
           <TabButtons
