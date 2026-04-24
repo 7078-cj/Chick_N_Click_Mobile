@@ -39,7 +39,7 @@ type LocationData = {
 };
 
 type UploadProof = {
-  uri: string;
+  fileUri: string; // always a file:// URI written to documentDirectory
   name: string;
   type: string;
 };
@@ -48,7 +48,7 @@ type PlaceOrderParams = {
   orderType: "delivery" | "pickup";
   location: LocationData;
   proof?: UploadProof | null;
-  referenceId?: string; 
+  referenceId?: string;
 };
 
 type FetchCartOpts = { silent?: boolean };
@@ -73,14 +73,6 @@ function getLinkedAddons(cart: CartItem[], mainFoodId: number): CartItem[] {
   return cart.filter((i) => i.is_addon && i.parent_food_id === mainFoodId);
 }
 
-/**
- * Mirrors backend's per-category cap logic from existingAddonCount + syncAddons:
- *   - Sides cap  = main quantity  (independent of drinks)
- *   - Drinks cap = main quantity  (independent of sides)
- *
- * addon_category is sent by the backend as 'Sides' | 'Drinks'.
- * Returns which categories are over-cap so we can surface a specific message.
- */
 function getOverCapCategories(
   addons: CartItem[],
   nextQty: number,
@@ -94,7 +86,7 @@ function getOverCapCategories(
     .reduce((sum, a) => sum + Number(a.quantity), 0);
 
   return {
-    sides:  sidesTotal  > nextQty,
+    sides: sidesTotal > nextQty,
     drinks: drinksTotal > nextQty,
   };
 }
@@ -122,6 +114,17 @@ function confirmAddonTrim(message: string): Promise<boolean> {
   });
 }
 
+/**
+ * Writes a base64 string to a temp file:// path and returns that path.
+ *
+ * Why: React Native's Blob does NOT support ArrayBuffer or Uint8Array.
+ * The only FormData file upload that works in a release APK is the
+ * { uri, name, type } object shape — BUT the uri must be a file:// path
+ * that the app itself owns (not content:// from MediaStore).
+ *
+ * By writing the base64 to documentDirectory here, we get a stable
+ * file:// URI that FormData's native fetch layer can always read.
+ */
 /* ---------- CONTEXT ---------- */
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -136,26 +139,31 @@ export const CartProvider = ({ children }: ProviderProps) => {
   const [placingOrder, setPlacingOrder] = useState<boolean>(false);
 
   const cartRef = useRef(cart);
-  useEffect(() => { cartRef.current = cart; }, [cart]);
+  useEffect(() => {
+    cartRef.current = cart;
+  }, [cart]);
 
   /* ---------- FETCH CART ---------- */
 
-  const fetchCart = useCallback(async (opts?: FetchCartOpts) => {
-    if (!token) return;
-    const silent = opts?.silent === true;
-    try {
-      if (!silent) setLoading(true);
-      const res = await apiFetchCart(token);
-      if (!res.ok) throw new Error("Failed to fetch cart");
-      const data = await res.json();
-      setCart(data.cart || []);
-      setTotal(data.total || 0);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  }, [token]);
+  const fetchCart = useCallback(
+    async (opts?: FetchCartOpts) => {
+      if (!token) return;
+      const silent = opts?.silent === true;
+      try {
+        if (!silent) setLoading(true);
+        const res = await apiFetchCart(token);
+        if (!res.ok) throw new Error("Failed to fetch cart");
+        const data = await res.json();
+        setCart(data.cart || []);
+        setTotal(data.total || 0);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [token],
+  );
 
   useEffect(() => {
     if (token) {
@@ -191,93 +199,97 @@ export const CartProvider = ({ children }: ProviderProps) => {
     }
   };
 
-  /* ---------- UPDATE QUANTITY (MAIN OR ADD-ON) ---------- */
+  /* ---------- UPDATE QUANTITY ---------- */
 
-  const handleUpdate = useCallback(async (foodId: number, newQty: number): Promise<boolean> => {
-    if (!token) return false;
+  const handleUpdate = useCallback(
+    async (foodId: number, newQty: number): Promise<boolean> => {
+      if (!token) return false;
 
-    const current = cartRef.current;
-    const target = current.find((i) => i.food_id === foodId);
-    if (!target) return false;
+      const current = cartRef.current;
+      const target = current.find((i) => i.food_id === foodId);
+      if (!target) return false;
 
-    const oldQty = Number(target.quantity) || 1;
-    const desiredQty = Math.floor(newQty);
-    if (desiredQty === oldQty) return true;
+      const oldQty = Number(target.quantity) || 1;
+      const desiredQty = Math.floor(newQty);
+      if (desiredQty === oldQty) return true;
 
-    // Add-on rules
-    if (target.is_addon) {
-      const parentFoodId = Number(target.parent_food_id);
-      const parent = current.find((i) => !i.is_addon && i.food_id === parentFoodId);
-      if (!parent) return false;
+      if (target.is_addon) {
+        const parentFoodId = Number(target.parent_food_id);
+        const parent = current.find((i) => !i.is_addon && i.food_id === parentFoodId);
+        if (!parent) return false;
 
-      const mainQty = Number(parent.quantity) || 1;
-      const nextAddonQty = Math.max(0, desiredQty);
-      if (nextAddonQty > mainQty) {
-        Alert.alert("Limit reached", "Add-on quantity cannot be greater than the main food quantity.");
-        return false;
+        const mainQty = Number(parent.quantity) || 1;
+        const nextAddonQty = Math.max(0, desiredQty);
+        if (nextAddonQty > mainQty) {
+          Alert.alert(
+            "Limit reached",
+            "Add-on quantity cannot be greater than the main food quantity.",
+          );
+          return false;
+        }
+
+        const category = target.addon_category;
+        const siblings = current.filter(
+          (i) =>
+            i.is_addon &&
+            i.parent_food_id === parentFoodId &&
+            i.addon_category === category &&
+            i.food_id !== target.food_id,
+        );
+        const siblingsTotal = siblings.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
+        if (siblingsTotal + nextAddonQty > mainQty) {
+          Alert.alert(
+            "Limit reached",
+            "Total quantity of different add-ons in this group cannot exceed the main food quantity.",
+          );
+          return false;
+        }
+
+        setUpdatingFoodId(foodId);
+        try {
+          if (nextAddonQty <= 0) {
+            await removeCartItem(foodId);
+          } else {
+            await postLineQuantity(foodId, nextAddonQty);
+            await fetchCart({ silent: true });
+          }
+          return true;
+        } catch (err) {
+          console.error(err);
+          Alert.alert("Update Failed", "Unable to update add-on quantity.");
+          await fetchCart({ silent: true });
+          return false;
+        } finally {
+          setUpdatingFoodId(null);
+        }
       }
 
-      const category = target.addon_category;
-      const siblings = current.filter(
-        (i) =>
-          i.is_addon &&
-          i.parent_food_id === parentFoodId &&
-          i.addon_category === category &&
-          i.food_id !== target.food_id,
-      );
-      const siblingsTotal = siblings.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
-      if (siblingsTotal + nextAddonQty > mainQty) {
-        Alert.alert(
-          "Limit reached",
-          "Total quantity of different add-ons in this group cannot exceed the main food quantity.",
-        );
-        return false;
+      const nextMain = Math.max(1, desiredQty);
+      if (nextMain < oldQty) {
+        const linked = getLinkedAddons(current, foodId);
+        const over = getOverCapCategories(linked, nextMain);
+        if (over.sides || over.drinks) {
+          const confirmed = await confirmAddonTrim(buildTrimMessage(over));
+          if (!confirmed) return false;
+        }
       }
 
       setUpdatingFoodId(foodId);
       try {
-        if (nextAddonQty <= 0) {
-          await removeCartItem(foodId);
-        } else {
-          await postLineQuantity(foodId, nextAddonQty);
-          await fetchCart({ silent: true });
-        }
+        await postLineQuantity(foodId, nextMain);
+        await fetchCart({ silent: true });
         return true;
       } catch (err) {
         console.error(err);
-        Alert.alert("Update Failed", "Unable to update add-on quantity.");
+        Alert.alert("Update Failed", "Unable to update cart item quantity.");
         await fetchCart({ silent: true });
         return false;
       } finally {
         setUpdatingFoodId(null);
       }
-    }
-
-    const nextMain = Math.max(1, desiredQty);
-    if (nextMain < oldQty) {
-      const linked = getLinkedAddons(current, foodId);
-      const over = getOverCapCategories(linked, nextMain);
-
-      if (over.sides || over.drinks) {
-        const confirmed = await confirmAddonTrim(buildTrimMessage(over));
-        if (!confirmed) return false;
-      }
-    }
-
-    setUpdatingFoodId(foodId);
-    try {
-      await postLineQuantity(foodId, nextMain);
-      await fetchCart({ silent: true });
-      return true;
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Update Failed", "Unable to update cart item quantity.");
-      await fetchCart({ silent: true });
-      return false;
-    } finally {
-      setUpdatingFoodId(null);
-    }
-  }, [token, fetchCart]);
+    },
+    [token, fetchCart],
+  );
 
   const handleRemove = (foodId: number) => void removeCartItem(foodId);
 
@@ -287,21 +299,36 @@ export const CartProvider = ({ children }: ProviderProps) => {
     if (cartRef.current.length === 0) {
       return { ok: false, message: "Your cart is empty." };
     }
+
     try {
       setPlacingOrder(true);
+
       const formData = new FormData();
       formData.append("type", orderType);
+
       if (orderType === "delivery") {
         formData.append("location", location.full);
         formData.append("latitude", location.lat.toString());
         formData.append("longitude", location.lng.toString());
       }
-      if (proof) formData.append("proof_of_payment", proof as any);
-      if (referenceId) formData.append("reference_id", referenceId);
 
+      if (referenceId) {
+        formData.append("reference_id", referenceId);
+      }
+
+      if (proof?.fileUri) {
+        // fileUri is a file:// path in documentDirectory that we own —
+        // React Native's native fetch can always read this in a release APK.
+        formData.append("proof_of_payment", {
+          uri: proof.fileUri,
+          name: proof.name,
+          type: proof.type,
+        } as any);
+      }
 
       const res = await apiPlaceOrder(token as string, formData);
       const data = await res.json();
+
       if (!res.ok) throw new Error(data?.message || "Failed to place order.");
 
       setCart([]);
@@ -319,17 +346,19 @@ export const CartProvider = ({ children }: ProviderProps) => {
   /* ---------- CONTEXT VALUE ---------- */
 
   return (
-    <CartContext.Provider value={{
-      fetchCart,
-      cart,
-      total,
-      loading,
-      updatingFoodId,
-      placingOrder,
-      placeOrder,
-      handleUpdate,
-      handleRemove,
-    }}>
+    <CartContext.Provider
+      value={{
+        fetchCart,
+        cart,
+        total,
+        loading,
+        updatingFoodId,
+        placingOrder,
+        placeOrder,
+        handleUpdate,
+        handleRemove,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
