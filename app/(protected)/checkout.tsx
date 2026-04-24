@@ -7,7 +7,6 @@ import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
-import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useMemo, useState } from "react";
@@ -132,8 +131,7 @@ export default function Checkout() {
    */
   const pickProofImage = async () => {
     try {
-      const permission =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permission.granted) {
         alert("Permission required to access your photos.");
@@ -141,44 +139,20 @@ export default function Checkout() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
+        mediaTypes: ['images'],
         quality: 0.8,
-        base64: true,
       });
 
       if (result.canceled || !result.assets?.[0]) return;
 
       const asset = result.assets[0];
-      let base64 = asset.base64 ?? null;
 
-      // Fallback: read from URI if picker didn't return base64
-      if (!base64) {
-        try {
-          base64 = await FileSystem.readAsStringAsync(asset.uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-        } catch (fsErr) {
-          console.warn("readAsStringAsync fallback failed:", fsErr);
-        }
-      }
-
-      if (!base64) {
-        alert("Could not read image. Please try a different photo.");
-        return;
-      }
-
-      const fileName = `proof_${Date.now()}.jpg`;
-      const dir: string = FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? "";
-      const fileUri = `${dir}${fileName}`;
-
-      await FileSystem.writeAsStringAsync(fileUri, base64, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      const fileName = asset.fileName ?? `proof_${Date.now()}.jpg`;
 
       setProofImage({
-        uri: asset.uri,  // preview only
-        fileUri,         // used for upload
-        name: asset.fileName ?? fileName,
+        uri: asset.uri, // IMPORTANT: use directly
+        fileUri: asset.uri, // same thing, no copying
+        name: fileName,
         type: asset.mimeType ?? "image/jpeg",
       });
     } catch (err) {
