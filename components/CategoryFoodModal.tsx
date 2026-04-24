@@ -1,6 +1,6 @@
+import { useFood } from "@/hooks/useFood";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useFood } from "@/hooks/useFood";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import FloatingCart from "./FloatingCart";
@@ -17,7 +17,7 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
   const foods = foodCtx?.filteredFoods || [];
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white mt-safe-or-10 rounded-t-3xl overflow-hidden">
       {/* Header */}
       <View
         className="flex-row items-center justify-between px-4 py-3 bg-white border-b rounded-b-3xl mb-1"

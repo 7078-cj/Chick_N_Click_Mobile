@@ -136,7 +136,6 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
           
           {/* Header Bar */}
           <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
-            <View className="absolute self-center w-12 h-1.5 rounded-full bg-gray-200 top-1" />
             <View>
                 <Text style={{ color: COLORS.text }} className="text-2xl font-bold">{food.food_name}</Text>
                 <Text style={{ color: COLORS.subtext }}>₱{food.price} per unit</Text>

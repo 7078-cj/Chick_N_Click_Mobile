@@ -7,11 +7,11 @@ import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Image,
   ScrollView,
   Text,
@@ -68,6 +68,10 @@ export default function Checkout() {
     loadUserLocation();
   }, []);
 
+  useEffect(() => {
+    console.log("ProofImage updated:", proofImage);
+  }, [proofImage]);
+
   const loadUserLocation = async () => {
     try {
       const token = auth?.token;
@@ -117,6 +121,65 @@ export default function Checkout() {
     () => Number(cartCtx.total || 0) + deliveryFee,
     [cartCtx.total, deliveryFee]
   );
+
+  const normalizeUri = async (uri: string) => {
+    if (uri.startsWith("content://")) {
+      const newPath =
+        FileSystem.cacheDirectory + `proof_${Date.now()}.jpg`;
+
+      await FileSystem.copyAsync({
+        from: uri,
+        to: newPath,
+      });
+
+      return newPath;
+    }
+
+    return uri;
+  };
+
+  // 🔥 FIXED IMAGE PICKER
+  const pickProofImage = async () => {
+    try {
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permission.granted) {
+        setStatusModal({
+          visible: true,
+          title: "Permission Needed",
+          message: "Please allow gallery access to upload payment proof.",
+          type: "error",
+          redirectToOrders: false,
+        });
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"], // ✅ works with your version
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+
+      const asset = result.assets[0];
+
+      if (!asset.uri) return;
+
+      const fixedUri = await normalizeUri(asset.uri);
+
+      const imageData = {
+        uri: fixedUri,
+        name: asset.fileName ?? `proof_${Date.now()}.jpg`,
+        type: asset.mimeType ?? "image/jpeg",
+      };
+
+      setProofImage(imageData);
+    } catch (err) {
+      console.error("Image picker error:", err);
+    }
+  };
 
   const handlePlaceOrder = async () => {
     if (!referenceId.trim()) {
@@ -178,43 +241,6 @@ export default function Checkout() {
     });
   };
 
-  const pickProofImage = async () => {
-    try {
-      const permission =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permission.granted) {
-        setStatusModal({
-          visible: true,
-          title: "Permission Needed",
-          message: "Please allow gallery access to upload payment proof.",
-          type: "error",
-          redirectToOrders: false,
-        });
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        quality: 0.8,
-      });
-
-      if (result.canceled || !result.assets?.[0]) return;
-
-      const asset = result.assets[0];
-      const fallbackName = `proof_${Date.now()}.jpg`;
-
-      setProofImage({
-        uri: asset.uri,
-        name: asset.fileName || fallbackName,
-        type: asset.mimeType || "image/jpeg",
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <>
       <ScrollView
@@ -241,6 +267,7 @@ export default function Checkout() {
                     ? location.full
                     : "No location set. Tap the map to pin your delivery address."}
                 </Text>
+
                 <TouchableOpacity
                   onPress={() => setIsEditingLocation((prev) => !prev)}
                   className="items-center py-2 bg-orange-100 rounded-xl"
@@ -254,17 +281,13 @@ export default function Checkout() {
               <View style={{ height: 220 }}>
                 <MapComponent
                   editMode={isEditingLocation}
-                  location={{
-                    lat: location.lat,
-                    lng: location.lng,
-                    full: location.full,
-                  }}
+                  location={location}
                   setLocation={(loc) => {
                     if (loc.lat !== null && loc.lng !== null) {
                       setLocation({
                         full: loc.full ?? "",
-                        lat: loc.lat as number,
-                        lng: loc.lng as number,
+                        lat: loc.lat,
+                        lng: loc.lng,
                       });
                     }
                   }}
@@ -280,17 +303,12 @@ export default function Checkout() {
               Payment Reference ID
             </Text>
 
-            <Text className="mb-3 text-xs text-gray-500">
-              Enter your payment reference number (GCash / bank).
-            </Text>
-
             <View className="px-3 py-2 border border-gray-300 rounded-xl">
               <TextInput
                 value={referenceId}
                 onChangeText={(text) => setReferenceId(text.toUpperCase())}
                 placeholder="Enter reference ID"
-                placeholderTextColor="#9CA3AF"
-                className="text-sm text-gray-800"
+                className="text-sm"
               />
             </View>
           </View>
@@ -304,9 +322,12 @@ export default function Checkout() {
               <Image
                 source={{ uri: proofImage.uri }}
                 className="w-full h-40 mb-3 rounded-xl"
+                onError={(e) =>
+                  console.log("Image load error:", e.nativeEvent)
+                }
               />
             ) : (
-              <View className="items-center justify-center w-full h-32 mb-3 border border-dashed rounded-xl border-gray-300">
+              <View className="items-center justify-center w-full h-32 mb-3 border border-dashed rounded-xl">
                 <Text>No image selected</Text>
               </View>
             )}
@@ -324,22 +345,9 @@ export default function Checkout() {
           <TouchableOpacity
             onPress={handlePlaceOrder}
             disabled={cartCtx.placingOrder}
-            className={`items-center py-4 mb-4 rounded-2xl ${
-              cartCtx.placingOrder ? "bg-orange-300" : "bg-orange-500"
-            }`}
+            className="items-center py-4 mb-4 bg-orange-500 rounded-2xl"
           >
-            {cartCtx.placingOrder ? (
-              <View className="flex-row items-center gap-2">
-                <ActivityIndicator size="small" color="#fff" />
-                <Text className="text-base font-bold text-white">
-                  Processing Checkout...
-                </Text>
-              </View>
-            ) : (
-              <Text className="text-base font-bold text-white">
-                Place Order
-              </Text>
-            )}
+            <Text className="text-white font-bold">Place Order</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -349,8 +357,10 @@ export default function Checkout() {
         title={statusModal.title}
         message={statusModal.message}
         type={statusModal.type}
-        buttonText={statusModal.redirectToOrders ? "Go to Orders" : "OK"}
-        onClose={() => setStatusModal((prev) => ({ ...prev, visible: false }))}
+        buttonText="OK"
+        onClose={() =>
+          setStatusModal((prev) => ({ ...prev, visible: false }))
+        }
       />
     </>
   );
