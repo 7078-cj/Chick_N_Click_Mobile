@@ -1,7 +1,9 @@
 import { getCurrentUser } from "@/api/user";
 import CheckoutCartReview from "@/components/CheckoutCartReview";
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
+import LocationSelector from "@/components/LocationSelector";
 import MapComponent from "@/components/MapComponent";
+import MapModal from "@/components/MapModal";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
@@ -34,7 +36,7 @@ export default function Checkout() {
 
   const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
   const [loadingUser, setLoadingUser] = useState(true);
-  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [openedMap, setOpenedMap] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const [location, setLocation] = useState<LocationState>({
@@ -44,8 +46,8 @@ export default function Checkout() {
   });
 
   const [proofImage, setProofImage] = useState<{
-    uri: string;     // original picker URI — used for <Image> preview only
-    fileUri: string; // file:// path in documentDirectory — used for upload
+    uri: string;
+    fileUri: string;
     name: string;
     type: string;
   } | null>(null);
@@ -121,14 +123,6 @@ export default function Checkout() {
     [cartCtx.total, deliveryFee]
   );
 
-  /**
-   * FIX: In a release APK, content:// URIs from the Android MediaStore are
-   * NOT directly readable by the JS fetch/FormData API. We must copy the file
-   * into the app's own cache directory first so we have a proper file:// URI.
-   *
-   * We also avoid the legacy FileSystem import which can cause issues in
-   * production builds on Android.
-   */
   const pickProofImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -146,12 +140,11 @@ export default function Checkout() {
       if (result.canceled || !result.assets?.[0]) return;
 
       const asset = result.assets[0];
-
       const fileName = asset.fileName ?? `proof_${Date.now()}.jpg`;
 
       setProofImage({
-        uri: asset.uri, // IMPORTANT: use directly
-        fileUri: asset.uri, // same thing, no copying
+        uri: asset.uri,
+        fileUri: asset.uri,
         name: fileName,
         type: asset.mimeType ?? "image/jpeg",
       });
@@ -234,9 +227,21 @@ export default function Checkout() {
     }
   };
 
+  // Adapter: MapModal passes the full LocationState shape, but our local
+  // state uses { full, lat, lng } — normalise here so both components stay happy.
+  const handleLocationChange = (loc: any) => {
+    if (loc?.lat !== null && loc?.lng !== null) {
+      setLocation({
+        full: loc.full ?? "",
+        lat: loc.lat,
+        lng: loc.lng,
+      });
+    }
+  };
+
   return (
     <>
-      {/* Loading overlay while placing order */}
+      {/* ── Placing-order overlay ───────────────────────── */}
       <Modal transparent visible={isPlacingOrder} animationType="fade">
         <View
           style={{
@@ -286,7 +291,7 @@ export default function Checkout() {
         <View className="p-5">
           <CheckoutCartReview />
 
-          {/* Order Type Toggle */}
+          {/* ── Order type toggle ───────────────────────── */}
           <View className="flex-row mb-4 bg-gray-100 rounded-2xl p-1">
             {(["delivery", "pickup"] as const).map((type) => (
               <TouchableOpacity
@@ -307,48 +312,34 @@ export default function Checkout() {
             ))}
           </View>
 
+          {/* ── Delivery location ───────────────────────── */}
           {orderType === "delivery" && (
             <View className="mb-4 bg-white shadow rounded-2xl overflow-hidden">
-              <View className="p-4">
-                <Text className="mb-1 text-base font-semibold">
-                  Delivery Location
-                </Text>
-                <Text className="text-xs text-gray-500 mb-3">
-                  {location.full.trim()
-                    ? location.full
-                    : "No location set. Tap the map to pin your delivery address."}
-                </Text>
-
-                <TouchableOpacity
-                  onPress={() => setIsEditingLocation((prev) => !prev)}
-                  className="items-center py-2 bg-orange-100 rounded-xl"
-                >
-                  <Text className="font-semibold text-orange-700">
-                    {isEditingLocation ? "Done" : "Change Location"}
-                  </Text>
-                </TouchableOpacity>
+              {/* Map preview */}
+              <View style={{ height: 200 }}>
+                <MapComponent
+                  editMode={false}
+                  location={location}
+                  setLocation={handleLocationChange}
+                  showSearchBar={false}
+                  interactive={false}
+                />
               </View>
 
-              <View style={{ height: 220 }}>
-                <MapComponent
-                  editMode={isEditingLocation}
+              {/* LocationSelector sits below the map preview */}
+              <View className="px-4 py-3">
+                <Text className="text-base font-semibold mb-2">
+                  Delivery Location
+                </Text>
+                <LocationSelector
                   location={location}
-                  setLocation={(loc) => {
-                    if (loc.lat !== null && loc.lng !== null) {
-                      setLocation({
-                        full: loc.full ?? "",
-                        lat: loc.lat,
-                        lng: loc.lng,
-                      });
-                    }
-                  }}
-                  showSearchBar={isEditingLocation}
-                  interactive={isEditingLocation}
+                  setOpenedMap={setOpenedMap}
                 />
               </View>
             </View>
           )}
 
+          {/* ── Payment reference ───────────────────────── */}
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
             <Text className="mb-2 text-base font-semibold">
               Payment Reference ID
@@ -364,6 +355,7 @@ export default function Checkout() {
             </View>
           </View>
 
+          {/* ── Payment proof ───────────────────────────── */}
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
             <Text className="mb-2 text-base font-semibold">Payment Proof</Text>
 
@@ -372,9 +364,7 @@ export default function Checkout() {
                 source={{ uri: proofImage.uri }}
                 className="w-full h-40 mb-3 rounded-xl"
                 resizeMode="cover"
-                onError={(e) =>
-                  console.warn("Image load error:", e.nativeEvent)
-                }
+                onError={(e) => console.warn("Image load error:", e.nativeEvent)}
               />
             ) : (
               <View className="items-center justify-center w-full h-32 mb-3 border border-dashed border-gray-300 rounded-xl">
@@ -392,7 +382,7 @@ export default function Checkout() {
             </TouchableOpacity>
           </View>
 
-          {/* Order Summary */}
+          {/* ── Order summary ───────────────────────────── */}
           <View className="p-4 mb-4 bg-orange-50 rounded-2xl">
             <Text className="text-base font-semibold mb-2">Order Summary</Text>
             <View className="flex-row justify-between mb-1">
@@ -413,6 +403,7 @@ export default function Checkout() {
             </View>
           </View>
 
+          {/* ── Place order ─────────────────────────────── */}
           <TouchableOpacity
             onPress={handlePlaceOrder}
             disabled={isPlacingOrder || cartCtx.placingOrder}
@@ -433,6 +424,14 @@ export default function Checkout() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* ── Map modal (full-screen pin picker) ─────────── */}
+      <MapModal
+        opened={openedMap}
+        setOpened={setOpenedMap}
+        location={location}
+        handleLocationChange={handleLocationChange}
+      />
 
       <RequestStatusModal
         visible={statusModal.visible}

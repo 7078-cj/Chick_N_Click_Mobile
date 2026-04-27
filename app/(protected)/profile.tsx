@@ -1,5 +1,7 @@
 import { getCurrentUser, updateUser } from "@/api/user";
+import LocationSelector from "@/components/LocationSelector";
 import MapComponent from "@/components/MapComponent";
+import MapModal from "@/components/MapModal";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
@@ -37,6 +39,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [openedMap, setOpenedMap] = useState(false);
   const [statusModal, setStatusModal] = useState({
     visible: false,
     title: "",
@@ -214,14 +217,13 @@ export default function Profile() {
         contentContainerStyle={{ paddingBottom: TAB_BAR_SCROLL_INSET }}
         showsVerticalScrollIndicator={false}
       >
-
         <View className="items-center" style={{ paddingTop: 80 }}>
 
           {/* FLOATING LOGO — sits above the card */}
           <View
             style={{
               position: "absolute",
-              top: 20,           
+              top: 20,
               zIndex: 10,
               backgroundColor: "#fff",
               borderRadius: 60,
@@ -243,7 +245,6 @@ export default function Profile() {
           <View
             className="w-[92%] bg-white rounded-[30px] px-5 pb-6"
             style={{
-              // paddingTop gives space for the logo that overlaps from above
               paddingTop: 64,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 2 },
@@ -293,44 +294,52 @@ export default function Profile() {
               }
             />
 
-            {/* NOTE */}
-            <TextInput
-              className="bg-[#F3F3F3] rounded-xl px-4 py-3 mb-3"
-              placeholder="Add Note"
-              value={formData.note}
-              editable={isEditing}
-              onChangeText={(v) =>
-                setFormData((p) => ({ ...p, note: v }))
-              }
-            />
-
             {/* LOCATION SECTION */}
             <Text className="text-gray-400 mt-2 mb-2">Your Location</Text>
 
-            <View className="bg-[#F3F3F3] rounded-2xl p-4">
-              {/* 
-
-              <View className="flex-row items-center mb-3">
-                <Ionicons name="location-outline" size={16} color="#F97316" />
-                <Text
-                  className="ml-2 font-semibold text-gray-800 flex-1"
-                  numberOfLines={2}
-                >
-                  {location.full || "Location not set"}
-                </Text>
+            {isEditing ? (
+              /* Edit mode: LocationSelector opens the MapModal */
+              (
+              <View className="bg-[#F3F3F3] rounded-2xl overflow-hidden">
+                <View style={{ height: 200 }}>
+                  <MapComponent
+                    editMode={false}
+                    location={location}
+                    setLocation={setLocation}
+                    showSearchBar={false}
+                    interactive={false}
+                  />
+                </View>
+              <LocationSelector
+                location={location}
+                setOpenedMap={setOpenedMap}
+              />
+              </View>)
+            ) : (
+              /* View mode: compact read-only map preview */
+              <View className="bg-[#F3F3F3] rounded-2xl overflow-hidden">
+                <View style={{ height: 200 }}>
+                  <MapComponent
+                    editMode={false}
+                    location={location}
+                    setLocation={setLocation}
+                    showSearchBar={false}
+                    interactive={false}
+                  />
+                </View>
+                {location.full ? (
+                  <View className="flex-row items-center px-4 py-3 gap-2">
+                    <Text className="text-sm">📍</Text>
+                    <Text
+                      className="text-gray-600 text-xs flex-1"
+                      numberOfLines={2}
+                    >
+                      {location.full}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
-
-              {/* MAP — FIX: overflow hidden so the map stays clipped inside the card */}
-              <View style={{ borderRadius: 12, overflow: "hidden", height: 280 }}>
-                <MapComponent
-                  editMode={isEditing}
-                  location={location}
-                  setLocation={setLocation}
-                  showSearchBar={isEditing}
-                  interactive={isEditing}
-                />
-              </View>
-            </View>
+            )}
 
             {/* EDIT / SAVE BUTTON */}
             <TouchableOpacity
@@ -357,6 +366,14 @@ export default function Profile() {
           </View>
         </View>
       </ScrollView>
+
+      {/* MAP MODAL — only mounted when editing */}
+      <MapModal
+        opened={openedMap}
+        setOpened={setOpenedMap}
+        location={location}
+        handleLocationChange={setLocation}
+      />
 
       <RequestStatusModal
         visible={statusModal.visible}

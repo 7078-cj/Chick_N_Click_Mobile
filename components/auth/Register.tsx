@@ -3,7 +3,8 @@ import AuthContext from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import MapComponent from "../MapComponent";
+import LocationSelector from "../LocationSelector";
+import MapModal from "../MapModal";
 
 type RegisterProps = {
   onGoToLogin: () => void;
@@ -95,6 +96,7 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [openedMap, setOpenedMap] = useState(false)
 
   // ── Location state (mirrors web version) ──────────────────────────────────
   const [location, setLocation] = useState<LocationState>({
@@ -295,27 +297,24 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
         <Text className="mb-2 -mt-1 text-xs text-red-500">{errors.phone}</Text>
       ) : null}
 
-      {/* Map — passes setLocation callback so map can update location state  */}
-      <View
-        className="mb-1 overflow-hidden border border-gray-200 rounded-xl"
-        style={{ height: 460 }}
-      >
-        <Text className="px-4 py-2 text-sm text-gray-500">
-          Tap on the map to select your location
-        </Text>
-        <MapComponent
-          setLocation={handleLocationChange}
-          location={location}
-          editMode={true}
-        />
-      </View>
 
       {/* Show selected address (mirrors web's 📍 display) */}
-      {location.full ? (
+      {/* <TouchableOpacity className="flex flex-col justify-center items-center"
+        onPress={() => setOpenedMap(true)}
+      >
         <Text className="mb-2 text-xs italic text-center text-gray-600">
-          📍 {location.full}
+          {location.full ? location.full: "Tap to change Location"}
         </Text>
-      ) : null}
+        <Text>
+          {
+            location.full && "Tap to change Location"
+          }
+        </Text>
+      </TouchableOpacity> */}
+      <LocationSelector
+        location = {location}
+        setOpenedMap = {setOpenedMap}
+      />
 
       {errors.location ? (
         <Text className="mb-2 text-xs text-red-500">{errors.location}</Text>
@@ -368,6 +367,14 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
           <Text className="text-sm font-semibold text-orange-400">Log In</Text>
         </TouchableOpacity>
       </View>
+      
+
+      <MapModal
+        opened={openedMap}
+        setOpened={setOpenedMap}
+        location = {location}
+        handleLocationChange = {handleLocationChange}
+      />
     </View>
   );
 }
