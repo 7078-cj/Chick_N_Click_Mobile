@@ -14,7 +14,6 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [error, setError] = useState("");
 
@@ -35,7 +34,10 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
     setLoading(true);
     try {
       const res = await auth.loginUser({ email, password });
-      if (res === "The credential are wrong") setError(res);
+      
+      if (res.errors || res.message){
+        setError(res.message)
+      }
       else setVisible(false);
     } catch (err: any) {
       setError(err?.message || "Something went wrong");

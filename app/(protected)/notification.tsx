@@ -16,9 +16,12 @@ export default function Notification() {
     notifications,
     markAsRead,
     removeNotification,
+    fetchNotifications,
   } = useNotification();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchNotifications()
+  }, []);
 
   return (
     <View className="flex-1 bg-white">

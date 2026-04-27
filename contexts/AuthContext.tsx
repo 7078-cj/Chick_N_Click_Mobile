@@ -11,7 +11,7 @@ type AuthContextType = {
   loginUser: (credentials: {
     email: string;
     password: string;
-  }) => Promise<void | string>;
+  }) => Promise<void | string | any>;
   logoutUser: () => Promise<void>;
 };
 
@@ -55,9 +55,6 @@ export function AuthProvider({ children }: UserContextProviderProps) {
   }) => {
     try {
       const data = await loginRequest(email, password);
-      if (data.message == "The credential are wrong") {
-        return data.message;
-      }
 
       if (data.token && data.user) {
         setToken(data.token);
@@ -65,6 +62,8 @@ export function AuthProvider({ children }: UserContextProviderProps) {
 
         await AsyncStorage.setItem("token", JSON.stringify(data.token));
         await AsyncStorage.setItem("user", JSON.stringify(data.user));
+      }else{
+        return data
       }
     } catch (err) {
       return err;

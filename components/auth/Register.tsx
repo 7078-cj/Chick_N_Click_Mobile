@@ -165,7 +165,6 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
       };
 
       const { res, data } = await registerRequest(body);
-
       if (!res.ok) {
         throw new Error(
           (data as { message?: string })?.message || "Registration failed",
@@ -180,7 +179,6 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
 
       // Navigation is handled by the parent via loginUser / auth context
     } catch (err: any) {
-      console.error("Registration error:", err);
       setErrors({ general: err?.message || "Registration failed" });
       clearErrorAfterDelay("general");
     } finally {
