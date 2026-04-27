@@ -4,6 +4,7 @@ import {
   markNotificationAsRead as apiMarkNotificationAsRead,
 } from "@/api/notifications";
 import AuthContext from "@/contexts/AuthContext";
+import { showToast } from "@/utils/toast";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type AppNotification = {
@@ -120,6 +121,7 @@ export const NotificationProvider: React.FC<ProviderProps> = ({ children }) => {
       try {
         const msg = JSON.parse(e.data);
         if (msg.type === "notification") {
+          showToast("New notification", "Open the bell to read it.", "info");
           void fetchNotifications({ silent: true });
         }
       } catch (err) {

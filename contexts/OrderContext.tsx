@@ -1,5 +1,6 @@
 import { cancelOrderRequest, fetchOrders as apiFetchOrders } from "@/api/orders";
 import { Order, OrderContextType, OrderProviderProps } from "@/types/Order";
+import { showToast } from "@/utils/toast";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AuthContext from "./AuthContext";
 
@@ -45,9 +46,10 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
       if (!res.ok) throw new Error(data.message || "Failed to cancel order");
 
       fetchOrders();
+      showToast("Order cancelled", undefined, "success");
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      showToast("Could not cancel", err.message ?? "Please try again.", "error");
     }
   };
 

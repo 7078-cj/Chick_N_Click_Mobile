@@ -3,6 +3,7 @@ import { COLORS, SHADOW } from "@/constants/theme"; // Using your theme
 import AuthContext from "@/contexts/AuthContext";
 import { useAddOn } from "@/hooks/useAddOn";
 import { useCart } from "@/hooks/useCart";
+import { showToast } from "@/utils/toast";
 import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -74,11 +75,16 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
     const existing = currentList.find((i) => i.id === item.id);
 
     if (currentTotal >= quantity && !existing) {
-        return alert(`You can only select ${quantity} ${type}(s) for this quantity.`);
+        return showToast(
+        "Selection limit",
+        `You can only select ${quantity} ${type}(s) for this quantity.`,
+        "info",
+      );
     }
 
     if (existing) {
-      if (currentTotal >= quantity) return alert(`Max ${quantity} reached`);
+      if (currentTotal >= quantity)
+        return showToast("Maximum reached", `You can pick at most ${quantity}.`, "info");
       setter(prev => prev.map(i => i.id === item.id ? { ...i, count: i.count + 1 } : i));
     } else {
       setter(prev => [...prev, { id: item.id, name: item.food_name, price: item.price, count: 1 }]);
@@ -92,7 +98,8 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
   const addonsTotal = getSideTotal() + getDrinkTotal();
 
   const handleAddToCart = async () => {
-    if (!authCtx?.token) return alert("Please login first");
+    if (!authCtx?.token)
+      return showToast("Sign in required", "Please log in to add items to your cart.", "info");
     try {
       setLoading(true);
       const res = await postCartAdd(authCtx.token as string, food.id, {
@@ -106,15 +113,21 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
       });
 
       if (res.ok) {
-        cartCtx.fetchCart()
+        cartCtx.fetchCart();
         setOpened(false);
         setOrderDrinks([]);
         setOrderSides([]);
         setQuantity(1);
-
+        showToast(
+          "Added to cart",
+          `${food.food_name} × ${quantity}`,
+          "success",
+        );
+      } else {
+        showToast("Could not add to cart", "Please try again.", "error");
       }
-    } catch (err) {
-      alert("Failed to add to cart.");
+    } catch {
+      showToast("Could not add to cart", "Please check your connection and try again.", "error");
     } finally {
       setLoading(false);
     }

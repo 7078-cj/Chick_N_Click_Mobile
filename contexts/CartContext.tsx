@@ -4,6 +4,7 @@ import {
   placeOrder as apiPlaceOrder,
   postCartAdd as apiPostCartAdd,
 } from "@/api/cart";
+import { showToast } from "@/utils/toast";
 import React, {
   createContext,
   ReactNode,
@@ -221,9 +222,10 @@ export const CartProvider = ({ children }: ProviderProps) => {
         const mainQty = Number(parent.quantity) || 1;
         const nextAddonQty = Math.max(0, desiredQty);
         if (nextAddonQty > mainQty) {
-          Alert.alert(
+          showToast(
             "Limit reached",
             "Add-on quantity cannot be greater than the main food quantity.",
+            "info",
           );
           return false;
         }
@@ -238,9 +240,10 @@ export const CartProvider = ({ children }: ProviderProps) => {
         );
         const siblingsTotal = siblings.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
         if (siblingsTotal + nextAddonQty > mainQty) {
-          Alert.alert(
+          showToast(
             "Limit reached",
             "Total quantity of different add-ons in this group cannot exceed the main food quantity.",
+            "info",
           );
           return false;
         }
@@ -256,7 +259,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
           return true;
         } catch (err) {
           console.error(err);
-          Alert.alert("Update Failed", "Unable to update add-on quantity.");
+          showToast("Update failed", "Unable to update add-on quantity.", "error");
           await fetchCart({ silent: true });
           return false;
         } finally {
@@ -281,7 +284,7 @@ export const CartProvider = ({ children }: ProviderProps) => {
         return true;
       } catch (err) {
         console.error(err);
-        Alert.alert("Update Failed", "Unable to update cart item quantity.");
+        showToast("Update failed", "Unable to update cart item quantity.", "error");
         await fetchCart({ silent: true });
         return false;
       } finally {

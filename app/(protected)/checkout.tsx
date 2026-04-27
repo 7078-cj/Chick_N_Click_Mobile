@@ -6,6 +6,7 @@ import MapComponent from "@/components/MapComponent";
 import MapModal from "@/components/MapModal";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
+import { showToast } from "@/utils/toast";
 import AuthContext from "@/contexts/AuthContext";
 import { TabContext } from "@/contexts/TabContext";
 import { useCart } from "@/hooks/useCart";
@@ -128,7 +129,11 @@ export default function Checkout() {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permission.granted) {
-        alert("Permission required to access your photos.");
+        showToast(
+          "Permission needed",
+          "Allow photo access to upload payment proof.",
+          "info",
+        );
         return;
       }
 
@@ -150,7 +155,7 @@ export default function Checkout() {
       });
     } catch (err) {
       console.error("Image picker error:", err);
-      alert("Failed to pick image. Please try again.");
+      showToast("Image error", "Failed to pick an image. Please try again.", "error");
     }
   };
 

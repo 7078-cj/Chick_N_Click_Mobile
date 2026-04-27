@@ -2,6 +2,7 @@
 import AppBootstrapGate from "@/components/AppBootstrapGate";
 import Header from "@/components/Header";
 import Tabs from "@/components/Tabs";
+import ToastRoot from "@/components/ToastRoot";
 import { AddOnProvider } from "@/contexts/AddOnContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
@@ -32,6 +33,7 @@ export default function RootLayout({
                       <Header />
                       <Stack screenOptions={{ headerShown: false }} />
                       <Tabs />
+                      <ToastRoot />
                     </SafeAreaView>
                   </AppBootstrapGate>
                 </AddOnProvider>

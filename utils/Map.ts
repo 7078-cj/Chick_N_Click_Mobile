@@ -1,5 +1,5 @@
 import { coordinate, route } from "@/types/Map";
-import { Alert } from "react-native";
+import { showToast } from "@/utils/toast";
 import MapView from "react-native-maps";
 
 const NOMINATIM_HEADERS = {
@@ -51,7 +51,7 @@ export const fetchRoute = async ({ start, end, setRouteCoords }: route) => {
     setRouteCoords(coords);
   } catch (err: any) {
     console.log("Error fetching route:", err);
-    Alert.alert("Error", err.message || "Failed to fetch route");
+    showToast("Route error", err.message || "Failed to fetch route.", "error");
   }
 };
 
