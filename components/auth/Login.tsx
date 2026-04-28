@@ -1,7 +1,8 @@
+import { AppText } from "@/components/typography";
 import AuthContext from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
 
 type LoginProps = {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,7 +59,7 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
       {/* Error banner */}
       {error ? (
         <View className="px-3 py-2 mb-3 bg-red-100 border border-red-300 rounded-lg">
-          <Text className="text-sm text-center text-red-600">{error}</Text>
+          <AppText className="text-sm text-center text-red-600">{error}</AppText>
         </View>
       ) : null}
 
@@ -80,7 +81,7 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
         />
       </View>
       {emailError ? (
-        <Text className="mb-2 -mt-2 text-xs text-red-500">{emailError}</Text>
+        <AppText className="mb-2 -mt-2 text-xs text-red-500">{emailError}</AppText>
       ) : null}
 
       {/* Password */}
@@ -105,23 +106,22 @@ export default function Login({ setVisible, onGoToSignUp }: LoginProps) {
         </TouchableOpacity>
       </View>
 
-
       {/* Login Button */}
       <TouchableOpacity
         onPress={handleLogin}
         disabled={loading}
         className={`rounded-full py-4 items-center mb-5 ${loading ? "bg-orange-300" : "bg-orange-400"}`}
       >
-        <Text className="text-base font-bold text-white">
+        <AppText className="text-base font-bold text-white">
           {loading ? "Logging in..." : "Login"}
-        </Text>
+        </AppText>
       </TouchableOpacity>
 
       {/* Sign Up link */}
       <View className="flex-row justify-center">
-        <Text className="text-sm text-gray-500">Don't have an account? </Text>
+        <AppText className="text-sm text-gray-500">Don't have an account? </AppText>
         <TouchableOpacity onPress={onGoToSignUp}>
-          <Text className="text-sm font-semibold text-orange-400">Sign Up</Text>
+          <AppText className="text-sm font-semibold text-orange-400">Sign Up</AppText>
         </TouchableOpacity>
       </View>
     </View>

@@ -5,6 +5,7 @@ import LocationSelector from "@/components/LocationSelector";
 import MapComponent from "@/components/MapComponent";
 import MapModal from "@/components/MapModal";
 import RequestStatusModal from "@/components/RequestStatusModal";
+import { AppText } from "@/components/typography";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { showToast } from "@/utils/toast";
 import AuthContext from "@/contexts/AuthContext";
@@ -18,7 +19,6 @@ import {
   Image,
   Modal,
   ScrollView,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -271,12 +271,12 @@ export default function Checkout() {
             }}
           >
             <ActivityIndicator size="large" color="#f97316" />
-            <Text style={{ fontWeight: "600", fontSize: 15, color: "#1a1a1a" }}>
+            <AppText style={{ fontWeight: "600", fontSize: 15, color: "#1a1a1a" }}>
               Placing your order…
-            </Text>
-            <Text style={{ fontSize: 12, color: "#6b7280", textAlign: "center" }}>
+            </AppText>
+            <AppText style={{ fontSize: 12, color: "#6b7280", textAlign: "center" }}>
               Please wait while we confirm your payment.
-            </Text>
+            </AppText>
           </View>
         </View>
       </Modal>
@@ -306,13 +306,13 @@ export default function Checkout() {
                   orderType === type ? "bg-white shadow" : ""
                 }`}
               >
-                <Text
+                <AppText
                   className={`font-semibold capitalize text-sm ${
                     orderType === type ? "text-orange-600" : "text-gray-500"
                   }`}
                 >
                   {type}
-                </Text>
+                </AppText>
               </TouchableOpacity>
             ))}
           </View>
@@ -333,9 +333,9 @@ export default function Checkout() {
 
               {/* LocationSelector sits below the map preview */}
               <View className="px-4 py-3">
-                <Text className="text-base font-semibold mb-2">
+                <AppText className="text-base font-semibold mb-2">
                   Delivery Location
-                </Text>
+                </AppText>
                 <LocationSelector
                   location={location}
                   setOpenedMap={setOpenedMap}
@@ -346,9 +346,9 @@ export default function Checkout() {
 
           {/* ── Payment reference ───────────────────────── */}
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
-            <Text className="mb-2 text-base font-semibold">
+            <AppText className="mb-2 text-base font-semibold">
               Payment Reference ID
-            </Text>
+            </AppText>
 
             <View className="px-3 py-2 border border-gray-300 rounded-xl">
               <TextInput
@@ -362,7 +362,7 @@ export default function Checkout() {
 
           {/* ── Payment proof ───────────────────────────── */}
           <View className="p-4 mb-4 bg-white shadow rounded-2xl">
-            <Text className="mb-2 text-base font-semibold">Payment Proof</Text>
+            <AppText className="mb-2 text-base font-semibold">Payment Proof</AppText>
 
             {proofImage ? (
               <Image
@@ -373,7 +373,7 @@ export default function Checkout() {
               />
             ) : (
               <View className="items-center justify-center w-full h-32 mb-3 border border-dashed border-gray-300 rounded-xl">
-                <Text className="text-gray-400 text-sm">No image selected</Text>
+                <AppText className="text-gray-400 text-sm">No image selected</AppText>
               </View>
             )}
 
@@ -381,30 +381,30 @@ export default function Checkout() {
               onPress={pickProofImage}
               className="items-center py-3 bg-orange-100 rounded-xl"
             >
-              <Text className="font-semibold text-orange-700">
+              <AppText className="font-semibold text-orange-700">
                 {proofImage ? "Change Image" : "Upload Proof Image"}
-              </Text>
+              </AppText>
             </TouchableOpacity>
           </View>
 
           {/* ── Order summary ───────────────────────────── */}
           <View className="p-4 mb-4 bg-orange-50 rounded-2xl">
-            <Text className="text-base font-semibold mb-2">Order Summary</Text>
+            <AppText className="text-base font-semibold mb-2">Order Summary</AppText>
             <View className="flex-row justify-between mb-1">
-              <Text className="text-sm text-gray-600">Subtotal</Text>
-              <Text className="text-sm">₱{Number(cartCtx.total || 0).toFixed(2)}</Text>
+              <AppText className="text-sm text-gray-600">Subtotal</AppText>
+              <AppText className="text-sm">₱{Number(cartCtx.total || 0).toFixed(2)}</AppText>
             </View>
             <View className="flex-row justify-between mb-1">
-              <Text className="text-sm text-gray-600">Delivery Fee</Text>
-              <Text className="text-sm">
+              <AppText className="text-sm text-gray-600">Delivery Fee</AppText>
+              <AppText className="text-sm">
                 {orderType === "pickup" ? "Free" : `₱${deliveryFee.toFixed(2)}`}
-              </Text>
+              </AppText>
             </View>
             <View className="flex-row justify-between mt-2 pt-2 border-t border-orange-200">
-              <Text className="font-bold text-base">Total</Text>
-              <Text className="font-bold text-base text-orange-600">
+              <AppText className="font-bold text-base">Total</AppText>
+              <AppText className="font-bold text-base text-orange-600">
                 ₱{grandTotal.toFixed(2)}
-              </Text>
+              </AppText>
             </View>
           </View>
 
@@ -421,10 +421,10 @@ export default function Checkout() {
             {isPlacingOrder || cartCtx.placingOrder ? (
               <View className="flex-row items-center gap-2">
                 <ActivityIndicator size="small" color="white" />
-                <Text className="text-white font-bold ml-2">Placing Order…</Text>
+                <AppText className="text-white font-bold ml-2">Placing Order…</AppText>
               </View>
             ) : (
-              <Text className="text-white font-bold">Place Order</Text>
+              <AppText className="text-white font-bold">Place Order</AppText>
             )}
           </TouchableOpacity>
         </View>

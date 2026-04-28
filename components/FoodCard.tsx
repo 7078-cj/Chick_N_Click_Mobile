@@ -1,10 +1,10 @@
+import { AppText } from "@/components/typography";
 import { COLORS, SHADOW_SOFT } from "@/constants/theme";
 import { Food } from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
 import {
   Animated,
-  Text,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -113,7 +113,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
           </View>
 
           <View style={{ flex: 1, marginLeft: 14, marginRight: 8 }}>
-            <Text
+            <AppText
               numberOfLines={1}
               style={{
                 fontSize: 17,
@@ -122,8 +122,8 @@ const FoodCard: React.FC<Props> = ({ food }) => {
               }}
             >
               {food.food_name}
-            </Text>
-            <Text
+            </AppText>
+            <AppText
               numberOfLines={2}
               style={{
                 fontSize: 13,
@@ -133,7 +133,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
               }}
             >
               {food.description || "Freshly prepared and ready to order."}
-            </Text>
+            </AppText>
             <View
               style={{
                 flexDirection: "row",
@@ -142,7 +142,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                 marginTop: 10,
               }}
             >
-              <Text
+              <AppText
                 numberOfLines={1}
                 style={{
                   flex: 1,
@@ -152,8 +152,8 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                 }}
               >
                 {categoriesText}
-              </Text>
-              <Text
+              </AppText>
+              <AppText
                 style={{
                   fontSize: 16,
                   fontWeight: "800",
@@ -161,7 +161,7 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                 }}
               >
                 ₱{food.price}
-              </Text>
+              </AppText>
             </View>
           </View>
 
@@ -196,9 +196,9 @@ const FoodCard: React.FC<Props> = ({ food }) => {
                 paddingVertical: 3,
               }}
             >
-              <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
+              <AppText style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
                 Unavailable
-              </Text>
+              </AppText>
             </View>
           )}
         </Animated.View>

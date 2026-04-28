@@ -1,6 +1,7 @@
+import { AppText } from "@/components/typography";
 import { MaterialIcons } from "@expo/vector-icons"; // or react-native-vector-icons
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 
 interface CategoryCardProps {
   label: string;
@@ -51,7 +52,7 @@ export function CategoryCard({
       >
         {/* Text content */}
         <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text
+          <AppText
             style={{
               fontSize: 18,
               fontWeight: "900",
@@ -60,19 +61,19 @@ export function CategoryCard({
             }}
           >
             {title}
-          </Text>
+          </AppText>
 
           {description ? (
-            <Text
+            <AppText
               style={{ fontSize: 12, color: "#444", lineHeight: 17 }}
               numberOfLines={2}
             >
               {description}
-            </Text>
+            </AppText>
           ) : null}
-          <Text style={{ marginTop: 6, fontSize: 12, color: "#3f3f46", fontWeight: "600" }}>
+          <AppText style={{ marginTop: 6, fontSize: 12, color: "#3f3f46", fontWeight: "600" }}>
             {itemCount ?? 0} item{(itemCount ?? 0) !== 1 ? "s" : ""} available
-          </Text>
+          </AppText>
         </View>
 
         {/* Icon instead of image */}
@@ -98,9 +99,9 @@ export function CategoryCard({
           alignItems: "center",
         }}
       >
-        <Text style={{ fontSize: 14, color: "#333", fontWeight: "500" }}>
+        <AppText style={{ fontSize: 14, color: "#333", fontWeight: "500" }}>
           Tap to view category
-        </Text>
+        </AppText>
       </View>
     </TouchableOpacity>
   );

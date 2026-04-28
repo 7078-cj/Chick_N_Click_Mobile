@@ -1,4 +1,5 @@
 import { CategoryCard } from "@/components/CategoryCard";
+import { AppText } from "@/components/typography";
 import CategoryFoodModal from "@/components/CategoryFoodModal";
 import FoodCard from "@/components/FoodCard";
 import { COLORS, TAB_BAR_SCROLL_INSET } from "@/constants/theme";
@@ -17,7 +18,6 @@ import {
   findNodeHandle,
   Modal,
   ScrollView,
-  Text,
   TextInput,
   TouchableOpacity,
   View
@@ -87,18 +87,18 @@ export default function Index() {
           className="px-4 pb-4 mb-1 bg-white border-b rounded-b-3xl"
           style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
         >
-          <Text className="text-xs tracking-wider text-gray-600 uppercase">
+          <AppText className="text-xs tracking-wider text-gray-600 uppercase">
             Delicious picks
-          </Text>
-          <Text
+          </AppText>
+          <AppText
             className="text-3xl font-extrabold"
             style={{ color: COLORS.primary }}
           >
             Menu
-          </Text>
-          <Text className="mt-1 text-sm text-gray-600">
+          </AppText>
+          <AppText className="mt-1 text-sm text-gray-600">
             Choose your favorites and order in seconds.
-          </Text>
+          </AppText>
 
           <View
             className="flex-row items-center gap-2 px-3 py-2.5 mt-3 rounded-2xl border border-gray-100"
@@ -131,9 +131,9 @@ export default function Index() {
 
             <View ref={categoriesRef}>
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-lg font-bold text-gray-900">
+                <AppText className="text-lg font-bold text-gray-900">
                   Categories
-                </Text>
+                </AppText>
               </View>
               {categories.length > 0 ? (
                 <ScrollView
@@ -168,15 +168,15 @@ export default function Index() {
                           size={36}
                           color={COLORS.primary}
                         />
-                        <Text
+                        <AppText
                           className="mt-2 text-sm font-bold text-center text-gray-900"
                           numberOfLines={2}
                         >
                           {cat.name}
-                        </Text>
-                        <Text className="mt-1 text-xs text-gray-500">
+                        </AppText>
+                        <AppText className="mt-1 text-xs text-gray-500">
                           {itemCount} items
-                        </Text>
+                        </AppText>
                       </TouchableOpacity>
                     );
                   })}
@@ -184,9 +184,9 @@ export default function Index() {
               ) : null}
             </View>
 
-            <Text className="mt-2 mb-1 text-lg font-bold text-gray-900">
+            <AppText className="mt-2 mb-1 text-lg font-bold text-gray-900">
               Browse all
-            </Text>
+            </AppText>
 
             {categories.length === 0
               ? [0, 1].map((i) => (
@@ -220,17 +220,17 @@ export default function Index() {
           </View>
         ) : (
           <View className="px-4 pb-4 mt-4">
-            <Text className="mb-3 text-sm text-gray-600">
+            <AppText className="mb-3 text-sm text-gray-600">
               Results for &quot;{searchTrim}&quot;
-            </Text>
+            </AppText>
 
-            <Text className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            <AppText className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
               Categories
-            </Text>
+            </AppText>
             {filteredCategories.length === 0 ? (
-              <Text className="mb-6 text-sm text-gray-500">
+              <AppText className="mb-6 text-sm text-gray-500">
                 No matching categories.
-              </Text>
+              </AppText>
             ) : (
               <View className="gap-3 mb-6">
                 {filteredCategories.map((cat: any, i: number) => (
@@ -256,11 +256,11 @@ export default function Index() {
               </View>
             )}
 
-            <Text className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            <AppText className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
               Foods
-            </Text>
+            </AppText>
             {foodCtx.filteredFoods.length === 0 ? (
-              <Text className="text-sm text-gray-500">No matching foods.</Text>
+              <AppText className="text-sm text-gray-500">No matching foods.</AppText>
             ) : (
               foodCtx.filteredFoods.map((food) => (
                 <FoodCard key={food.id} food={food} />

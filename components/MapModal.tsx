@@ -1,9 +1,9 @@
+import { AppText } from '@/components/typography'
 import React from 'react'
 import {
     Modal,
     Platform,
     StatusBar,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native'
@@ -33,22 +33,22 @@ export default function MapModal({
                 activeOpacity={0.7}
                 className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
                 >
-                <Text className="text-gray-600 text-base leading-none" style={{ marginTop: -1 }}>
+                <AppText className="text-gray-600 text-base leading-none" style={{ marginTop: -1 }}>
                     ✕
-                </Text>
+                </AppText>
                 </TouchableOpacity>
 
                 {/* Title */}
                 <View className="items-center justify-center flex flex-col">
-                <Text
+                <AppText
                     className="text-base text-gray-900"
                     style={{ fontWeight: '700', letterSpacing: 0.2 }}
                 >
                     Choose Location
-                </Text>
-                <Text className="text-xs text-gray-400 mt-0.5" style={{ letterSpacing: 0.1 }}>
+                </AppText>
+                <AppText className="text-xs text-gray-400 mt-0.5" style={{ letterSpacing: 0.1 }}>
                     Tap the map to pin a spot
-                </Text>
+                </AppText>
                 
 
                 </View>
@@ -59,12 +59,12 @@ export default function MapModal({
                 activeOpacity={0.8}
                 className="px-4 h-10 rounded-full bg-amber-900 items-center justify-center"
                 >
-                <Text
+                <AppText
                     className="text-white text-sm"
                     style={{ fontWeight: '600', letterSpacing: 0.2 }}
                 >
                     Confirm
-                </Text>
+                </AppText>
                 </TouchableOpacity>
             </View>
             </View>
@@ -74,13 +74,13 @@ export default function MapModal({
             <View className="flex-row items-center px-5 py-3 bg-amber-50 border-b border-blue-100">
                 <View className="w-2 h-2 rounded-full bg-amber-500 mr-2.5" />
                 <View className="bg-blue-100 px-2 py-0.5 rounded-full">
-                <Text className="text-blue-500 text-xs" style={{ fontWeight: '600' }}>
+                <AppText className="text-blue-500 text-xs" style={{ fontWeight: '600' }}>
                     Selected
-                </Text>
+                </AppText>
                 </View>
-                <Text className="text-md text italic text-center text-gray-600 py-4">
+                <AppText className="text-md text italic text-center text-gray-600 py-4">
                     {location.full && location.full}
-                </Text>
+                </AppText>
             </View>
             )}
 
@@ -98,11 +98,11 @@ export default function MapModal({
             className="px-5 py-4 bg-white border-t border-gray-100 flex-row items-center"
             >
             <View className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center mr-3">
-                <Text className="text-sm">📍</Text>
+                <AppText className="text-sm">📍</AppText>
             </View>
-            <Text className="text-gray-400 text-xs flex-1" style={{ lineHeight: 18 }}>
+            <AppText className="text-gray-400 text-xs flex-1" style={{ lineHeight: 18 }}>
                 Press to place a marker precisely. Drag to adjust.
-            </Text>
+            </AppText>
             </View>
         </View>
         </Modal>

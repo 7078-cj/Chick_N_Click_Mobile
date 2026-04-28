@@ -1,5 +1,6 @@
+import { AppText } from '@/components/typography'
 import React from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 export default function LocationSelector({ location, setOpenedMap }: any) {
     const hasLocation = !!location?.full
@@ -20,38 +21,38 @@ export default function LocationSelector({ location, setOpenedMap }: any) {
             hasLocation ? 'bg-blue-100' : 'bg-gray-100'
             }`}
         >
-            <Text className="text-base">📍</Text>
+            <AppText className="text-base">📍</AppText>
         </View>
 
         {/* Text content */}
         <View className="flex-1">
             {hasLocation ? (
             <>
-                <Text
+                <AppText
                 className="text-gray-900 text-sm leading-snug"
                 style={{ fontWeight: '600' }}
                 numberOfLines={2}
                 >
                 {location.full}
-                </Text>
-                <Text className="text-blue-500 text-xs mt-0.5" style={{ fontWeight: '500' }}>
+                </AppText>
+                <AppText className="text-blue-500 text-xs mt-0.5" style={{ fontWeight: '500' }}>
                 Tap to change location
-                </Text>
+                </AppText>
             </>
             ) : (
             <>
-                <Text className="text-gray-700 text-sm" style={{ fontWeight: '600' }}>
+                <AppText className="text-gray-700 text-sm" style={{ fontWeight: '600' }}>
                 Set a location
-                </Text>
-                <Text className="text-gray-400 text-xs mt-0.5">
+                </AppText>
+                <AppText className="text-gray-400 text-xs mt-0.5">
                 Tap to pick from the map
-                </Text>
+                </AppText>
             </>
             )}
         </View>
 
         {/* Chevron */}
-        <Text className={`text-xs ${hasLocation ? 'text-blue-400' : 'text-gray-300'}`}>›</Text>
+        <AppText className={`text-xs ${hasLocation ? 'text-blue-400' : 'text-gray-300'}`}>›</AppText>
         </TouchableOpacity>
     )
 }

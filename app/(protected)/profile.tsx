@@ -2,6 +2,7 @@ import { getCurrentUser, updateUser } from "@/api/user";
 import LocationSelector from "@/components/LocationSelector";
 import MapComponent from "@/components/MapComponent";
 import MapModal from "@/components/MapModal";
+import { AppText } from "@/components/typography";
 import RequestStatusModal from "@/components/RequestStatusModal";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
@@ -15,7 +16,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -202,7 +202,7 @@ export default function Profile() {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-white">
         <ActivityIndicator size="large" color="#F97316" />
-        <Text className="text-sm text-gray-400">Loading profile...</Text>
+        <AppText className="text-sm text-gray-400">Loading profile...</AppText>
       </View>
     );
   }
@@ -254,12 +254,12 @@ export default function Profile() {
             }}
           >
             {/* TITLE */}
-            <Text className="text-lg font-bold text-center text-gray-800 mb-4">
+            <AppText className="text-lg font-bold text-center text-gray-800 mb-4">
               Account Settings
-            </Text>
+            </AppText>
 
             {/* SECTION LABEL */}
-            <Text className="text-gray-400 mb-2">Personal Information</Text>
+            <AppText className="text-gray-400 mb-2">Personal Information</AppText>
 
             {/* NAME ROW */}
             <View className="flex-row gap-2">
@@ -295,7 +295,7 @@ export default function Profile() {
             />
 
             {/* LOCATION SECTION */}
-            <Text className="text-gray-400 mt-2 mb-2">Your Location</Text>
+            <AppText className="text-gray-400 mt-2 mb-2">Your Location</AppText>
 
             {isEditing ? (
               /* Edit mode: LocationSelector opens the MapModal */
@@ -329,13 +329,13 @@ export default function Profile() {
                 </View>
                 {location.full ? (
                   <View className="flex-row items-center px-4 py-3 gap-2">
-                    <Text className="text-sm">📍</Text>
-                    <Text
+                    <AppText className="text-sm">📍</AppText>
+                    <AppText
                       className="text-gray-600 text-xs flex-1"
                       numberOfLines={2}
                     >
                       {location.full}
-                    </Text>
+                    </AppText>
                   </View>
                 ) : null}
               </View>
@@ -350,9 +350,9 @@ export default function Profile() {
               {saving ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-white font-bold">
+                <AppText className="text-white font-bold">
                   {isEditing ? "Save Changes" : "Edit Profile"}
-                </Text>
+                </AppText>
               )}
             </TouchableOpacity>
 
@@ -361,7 +361,7 @@ export default function Profile() {
               onPress={() => auth?.logoutUser()}
               className="mt-3 bg-red-500 rounded-full py-3 items-center"
             >
-              <Text className="text-white font-bold">Logout</Text>
+              <AppText className="text-white font-bold">Logout</AppText>
             </TouchableOpacity>
           </View>
         </View>

@@ -7,7 +7,6 @@ export type OrderEventPayload = {
   order: Order;
 };
 
-
 export type OrderItem = {
   id: number;
   order_id: number;
@@ -38,22 +37,21 @@ export type OrderUser = {
 };
 
 export type Order = {
-  id: number;
-  user_id: number;
-  total_price: number;
-  status: string;
-  estimated_time_of_completion: string;
-  payment_status?: string | null;
-  type: string;
-  longitude: string;
-  latitude: string;
-  location: string;
-  paid_at?: string | null;
-  proof_of_payment?: string | null;
+  id: string | number;
+  reference_id?: string;
   created_at: string;
-  updated_at: string;
-  items: OrderItem[];
-  user: OrderUser;
+  total_price?: number | string;
+  latitude?: number | string;
+  longitude?: number | string;
+  location?: string;
+  type?: string;
+  status?: string;
+  payment_status?: string;
+  proof_of_payment?: string;
+  note?: string;
+  estimated_time_of_completion?: number | string;
+  items?: OrderItem[];
+  user?: OrderUser;
 };
 
 export type OrderContextType = {

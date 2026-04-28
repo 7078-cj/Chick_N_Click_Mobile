@@ -1,6 +1,7 @@
+import { AppText } from "@/components/typography";
 import { COLORS } from "@/constants/theme";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 type Props = {
   eyebrow?: string;
@@ -25,20 +26,21 @@ export function ScreenIntro({
       style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
     >
       {eyebrow ? (
-        <Text className="text-xs tracking-wider text-gray-600 uppercase">
+        <AppText className="text-xs tracking-wider text-gray-600 uppercase">
           {eyebrow}
-        </Text>
+        </AppText>
       ) : null}
-      <Text
+      <AppText
+        face="display"
         className={accentTitle ? "text-3xl font-extrabold" : "text-2xl font-extrabold"}
         style={
           accentTitle ? { color: COLORS.primary } : { color: "#111827" }
         }
       >
         {title}
-      </Text>
+      </AppText>
       {subtitle ? (
-        <Text className="mt-1 text-sm text-gray-600">{subtitle}</Text>
+        <AppText className="mt-1 text-sm text-gray-600">{subtitle}</AppText>
       ) : null}
     </View>
   );

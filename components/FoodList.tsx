@@ -1,7 +1,8 @@
+import { AppText } from "@/components/typography";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useFood } from "@/hooks/useFood";
 import React from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import FoodCard from "./FoodCard";
 
 const FoodList: React.FC = () => {
@@ -15,7 +16,7 @@ const FoodList: React.FC = () => {
     return (
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#FD5602" />
-        <Text className="mt-2 text-gray-500">Loading foods...</Text>
+        <AppText className="mt-2 text-gray-500">Loading foods...</AppText>
       </View>
     );
   }
@@ -23,7 +24,7 @@ const FoodList: React.FC = () => {
   if (!filteredFoods || filteredFoods.length === 0) {
     return (
       <View className="flex-1 justify-center items-center">
-        <Text className="text-gray-500">No food available</Text>
+        <AppText className="text-gray-500">No food available</AppText>
       </View>
     );
   }

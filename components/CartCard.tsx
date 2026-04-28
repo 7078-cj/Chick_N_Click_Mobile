@@ -1,10 +1,10 @@
+import { AppText } from "@/components/typography";
 import { COLORS } from "@/constants/theme";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Pressable,
-  Text,
   View,
 } from "react-native";
 
@@ -105,18 +105,18 @@ export default function CartCard({
 
         {/* Info */}
         <View className="flex-1 px-3 py-2">
-          <Text className="font-bold text-gray-900">
+          <AppText className="font-bold text-gray-900">
             {item.food_name || item.food?.food_name}
-          </Text>
-          <Text className="font-semibold" style={{ color: COLORS.primary }}>
+          </AppText>
+          <AppText className="font-semibold" style={{ color: COLORS.primary }}>
             ₱
             {isOrder
               ? item.quantity * (item.price ?? item.food?.price ?? 0)
               : item.price ?? item.food?.price ?? 0}
-          </Text>
+          </AppText>
         </View>
 
-        {isOrder && <Text className="mr-2">{item.quantity} ×</Text>}
+        {isOrder && <AppText className="mr-2">{item.quantity} ×</AppText>}
 
         {/* Quantity / Order Section */}
         <View
@@ -125,9 +125,9 @@ export default function CartCard({
         >
           {isOrder ? (
             <View className="items-center justify-center flex-1">
-              <Text className="text-xs text-white rotate-90 whitespace-nowrap">
+              <AppText className="text-xs text-white rotate-90 whitespace-nowrap">
                 Order #{orderId}
-              </Text>
+              </AppText>
             </View>
           ) : (
             <>
@@ -137,15 +137,15 @@ export default function CartCard({
                 }}
                 disabled={blockQty}
               >
-                <Text
+                <AppText
                   className={`text-lg font-bold text-white
                   ${blockQty ? "opacity-50" : ""}`}
                 >
                   +
-                </Text>
+                </AppText>
               </Pressable>
 
-              <Text className="font-bold text-white">{quantity}</Text>
+              <AppText className="font-bold text-white">{quantity}</AppText>
 
               <Pressable
                 onPress={() => {
@@ -160,12 +160,12 @@ export default function CartCard({
                 }}
                 disabled={blockQty}
               >
-                <Text
+                <AppText
                   className={`text-lg font-bold text-white
                   ${blockQty || quantity <= 1 ? "opacity-50" : ""}`}
                 >
                   -
-                </Text>
+                </AppText>
               </Pressable>
             </>
           )}
@@ -177,9 +177,9 @@ export default function CartCard({
             pointerEvents="auto"
           >
             <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text className="mt-1 text-[10px] font-semibold text-gray-600">
+            <AppText className="mt-1 text-[10px] font-semibold text-gray-600">
               Updating…
-            </Text>
+            </AppText>
           </View>
         ) : null}
       </View>

@@ -1,11 +1,11 @@
 import { ScreenIntro } from "@/components/layout/ScreenIntro";
+import { AppText } from "@/components/typography";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useNotification } from "@/hooks/useNotification";
 import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -67,20 +67,20 @@ export default function Notification() {
                     elevation: 2,
                   }}
                 >
-                  <Text className="mb-1 text-base font-semibold text-gray-900">
+                  <AppText className="mb-1 text-base font-semibold text-gray-900">
                     {isUnread ? "🔔 " : "✔️ "} {item.title}
-                  </Text>
+                  </AppText>
 
-                  <Text className="text-sm text-gray-600">
+                  <AppText className="text-sm text-gray-600">
                     {item.body}
-                  </Text>
+                  </AppText>
 
                   <View className="flex-row items-center justify-between mt-2">
-                    <Text className="text-xs text-gray-400">
+                    <AppText className="text-xs text-gray-400">
                       {new Date(item.created_at).toLocaleString()}
-                    </Text>
+                    </AppText>
 
-                    <Text
+                    <AppText
                       onPress={(e) => {
                         e.stopPropagation();
                         removeNotification(item.id);
@@ -88,7 +88,7 @@ export default function Notification() {
                       className="text-xs text-red-400"
                     >
                       Delete
-                    </Text>
+                    </AppText>
                   </View>
                 </TouchableOpacity>
               );
@@ -96,9 +96,9 @@ export default function Notification() {
           </ScrollView>
         ) : (
           <View className="items-center justify-center flex-1">
-            <Text className="text-gray-500">
+            <AppText className="text-gray-500">
               No notifications yet.
-            </Text>
+            </AppText>
           </View>
         )}
       </View>

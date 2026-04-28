@@ -1,4 +1,5 @@
 import { postCartAdd } from "@/api/cart";
+import { AppText } from "@/components/typography";
 import { COLORS, SHADOW } from "@/constants/theme"; // Using your theme
 import AuthContext from "@/contexts/AuthContext";
 import { useAddOn } from "@/hooks/useAddOn";
@@ -12,7 +13,6 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  Text,
   TouchableOpacity,
   View
 } from "react-native";
@@ -150,14 +150,14 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
           {/* Header Bar */}
           <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
             <View>
-                <Text style={{ color: COLORS.text }} className="text-2xl font-bold">{food.food_name}</Text>
-                <Text style={{ color: COLORS.subtext }}>₱{food.price} per unit</Text>
+                <AppText style={{ color: COLORS.text }} className="text-2xl font-bold">{food.food_name}</AppText>
+                <AppText style={{ color: COLORS.subtext }}>₱{food.price} per unit</AppText>
             </View>
             <TouchableOpacity
                 onPress={() => setOpened(false)}
                 className="items-center justify-center bg-gray-100 rounded-full w-9 h-9"
             >
-                <Text className="font-bold text-lg">✕</Text>
+                <AppText className="font-bold text-lg">✕</AppText>
             </TouchableOpacity>
           </View>
 
@@ -174,37 +174,37 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
               {/* QUANTITY SELECTOR */}
               <View className="p-4 mb-4 bg-gray-50 rounded-2xl">
                 <View className="flex-row items-center justify-between mb-2">
-                <Text className="font-semibold text-lg" style={{ color: COLORS.text }}>Quantity</Text>
+                <AppText className="font-semibold text-lg" style={{ color: COLORS.text }}>Quantity</AppText>
                 <View className="flex-row items-center bg-white rounded-xl shadow-sm border border-gray-100">
                   <Pressable
                     onPress={() => changeQty(quantity - 1)}
                     className="items-center justify-center w-12 h-12"
                   >
-                    <Text className="text-xl font-bold" style={{ color: COLORS.primary }}>-</Text>
+                    <AppText className="text-xl font-bold" style={{ color: COLORS.primary }}>-</AppText>
                   </Pressable>
-                  <Text className="px-4 font-bold text-lg">{quantity}</Text>
+                  <AppText className="px-4 font-bold text-lg">{quantity}</AppText>
                   <Pressable
                     onPress={() => changeQty(quantity + 1)}
                     className="items-center justify-center w-12 h-12"
                   >
-                    <Text className="text-xl font-bold" style={{ color: COLORS.primary }}>+</Text>
+                    <AppText className="text-xl font-bold" style={{ color: COLORS.primary }}>+</AppText>
                   </Pressable>
                 </View>
               </View>
-                <Text className="text-xs text-gray-500">
+                <AppText className="text-xs text-gray-500">
                   Add-ons per section can be selected up to your meal quantity.
-                </Text>
+                </AppText>
               </View>
 
               {!isSideOrDrink && (
                 <View className="flex-row gap-2 mb-5">
                   <View className="flex-1 px-3 py-2 rounded-xl bg-orange-50">
-                    <Text className="text-[11px] text-gray-500">Sides</Text>
-                    <Text className="font-bold text-brand">{getSideTotal()} / {quantity}</Text>
+                    <AppText className="text-[11px] text-gray-500">Sides</AppText>
+                    <AppText className="font-bold text-brand">{getSideTotal()} / {quantity}</AppText>
                   </View>
                   <View className="flex-1 px-3 py-2 rounded-xl bg-orange-50">
-                    <Text className="text-[11px] text-gray-500">Drinks</Text>
-                    <Text className="font-bold text-brand">{getDrinkTotal()} / {quantity}</Text>
+                    <AppText className="text-[11px] text-gray-500">Drinks</AppText>
+                    <AppText className="font-bold text-brand">{getDrinkTotal()} / {quantity}</AppText>
                   </View>
                 </View>
               )}
@@ -245,12 +245,12 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
           {/* FOOTER */}
           <View className="p-5 border-t border-gray-100 bg-white">
             <View className="flex-row justify-between mb-1">
-                <Text className="text-gray-500 font-medium">Subtotal</Text>
-                <Text className="font-bold text-base" style={{ color: COLORS.text }}>₱{totalPrice}</Text>
+                <AppText className="text-gray-500 font-medium">Subtotal</AppText>
+                <AppText className="font-bold text-base" style={{ color: COLORS.text }}>₱{totalPrice}</AppText>
             </View>
             <View className="flex-row justify-between mb-4">
-                <Text className="text-xs text-gray-400">Qty {quantity}{addonsTotal > 0 ? ` • ${addonsTotal} add-ons` : ""}</Text>
-                <Text className="text-xs text-gray-400">Ready to add</Text>
+                <AppText className="text-xs text-gray-400">Qty {quantity}{addonsTotal > 0 ? ` • ${addonsTotal} add-ons` : ""}</AppText>
+                <AppText className="text-xs text-gray-400">Ready to add</AppText>
             </View>
             <TouchableOpacity
               onPress={handleAddToCart}
@@ -262,14 +262,14 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
               {loading ? (
                 <View className="flex-row items-center gap-2">
                   <ActivityIndicator color="white" />
-                  <Text className="text-white text-center font-bold text-base">
+                  <AppText className="text-white text-center font-bold text-base">
                     Adding to Cart...
-                  </Text>
+                  </AppText>
                 </View>
               ) : (
-                <Text className="text-white text-center font-bold text-lg">
+                <AppText className="text-white text-center font-bold text-lg">
                   Add to Cart • ₱{totalPrice}
-                </Text>
+                </AppText>
               )}
             </TouchableOpacity>
           </View>
@@ -284,13 +284,13 @@ const AddToCartModal = ({ food, opened, setOpened }: any) => {
 const SectionHeader = ({ title, current, max, onClear }: any) => (
   <View className="flex-row justify-between items-end mb-4 px-1">
     <View>
-        <Text className="font-bold text-lg" style={{ color: COLORS.text }}>{title}</Text>
-        <Text className={`text-xs ${current === max ? 'text-green-600' : 'text-gray-400'}`}>
+        <AppText className="font-bold text-lg" style={{ color: COLORS.text }}>{title}</AppText>
+        <AppText className={`text-xs ${current === max ? 'text-green-600' : 'text-gray-400'}`}>
             {current} of {max} selected
-        </Text>
+        </AppText>
     </View>
     <TouchableOpacity onPress={onClear}>
-      <Text style={{ color: COLORS.secondary }} className="text-xs font-bold uppercase">Clear</Text>
+      <AppText style={{ color: COLORS.secondary }} className="text-xs font-bold uppercase">Clear</AppText>
     </TouchableOpacity>
   </View>
 );
@@ -304,15 +304,15 @@ const AddOnCard = ({ item, count, onPress }: any) => (
   >
     <Image source={{ uri: item.thumbnail }} className="h-28 w-full bg-gray-50" />
     <View className="p-2">
-      <Text numberOfLines={1} className="font-semibold text-sm" style={{ color: COLORS.text }}>{item.food_name}</Text>
-      <Text className="text-xs text-gray-500">+₱{item.price}</Text>
+      <AppText numberOfLines={1} className="font-semibold text-sm" style={{ color: COLORS.text }}>{item.food_name}</AppText>
+      <AppText className="text-xs text-gray-500">+₱{item.price}</AppText>
     </View>
     {count > 0 && (
       <View 
         className="absolute top-2 right-2 px-2 py-1 rounded-lg"
         style={{ backgroundColor: COLORS.primary }}
       >
-        <Text className="text-white font-bold text-xs">x{count}</Text>
+        <AppText className="text-white font-bold text-xs">x{count}</AppText>
       </View>
     )}
   </TouchableOpacity>

@@ -1,3 +1,4 @@
+import { AppText } from "@/components/typography";
 import { TabContext } from "@/contexts/TabContext";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
@@ -5,7 +6,6 @@ import {
   Image,
   Modal,
   ScrollView,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -119,11 +119,11 @@ export default function AuthModal({
               }}
             >
               {/* TITLE */}
-              <Text className="mb-5 text-lg font-bold text-center text-gray-900">
+              <AppText className="mb-5 text-lg font-bold text-center text-gray-900">
                 {page === "login"
                   ? "Sign in your Account"
                   : "Create an Account"}
-              </Text>
+              </AppText>
 
               {/* CONTENT */}
               <View className="w-full">

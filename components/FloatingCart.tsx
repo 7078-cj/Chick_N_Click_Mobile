@@ -1,7 +1,8 @@
+import { AppText } from "@/components/typography";
 import { COLORS } from "@/constants/theme";
 import { useCart } from "@/hooks/useCart";
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 
 const FloatingCart = ({ onPress }: any) => {
     const CartContext = useCart();
@@ -35,10 +36,10 @@ const FloatingCart = ({ onPress }: any) => {
         ]}
         >
         {/* ICON */}
-        <Text style={{ fontSize: 18 }}>🛒</Text>
+        <AppText style={{ fontSize: 18 }}>🛒</AppText>
 
         {/* COUNT */}
-        <Text
+        <AppText
             style={{
             color: "#fff",
             fontWeight: "bold",
@@ -46,7 +47,7 @@ const FloatingCart = ({ onPress }: any) => {
             }}
         >
             {count}
-        </Text>
+        </AppText>
         </TouchableOpacity>
     );
 };

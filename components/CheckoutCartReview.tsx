@@ -1,7 +1,8 @@
+import { AppText } from "@/components/typography";
 import { COLORS, SHADOW_SOFT } from "@/constants/theme";
 import { useCart } from "@/hooks/useCart";
 import React from "react";
-import { Image, Text, View } from "react-native";
+import { Image, View } from "react-native";
 
 type CartRow = {
   food_id: number;
@@ -32,9 +33,9 @@ export default function CheckoutCartReview() {
       className="p-4 mb-4 bg-white rounded-2xl border border-gray-100"
       style={SHADOW_SOFT}
     >
-      <Text className="mb-3 text-base font-semibold text-gray-900">
+      <AppText className="mb-3 text-base font-semibold text-gray-900">
         Order items
-      </Text>
+      </AppText>
       <View className="gap-0">
         {(cart as CartRow[]).map((item, index) => {
           const name = item.food_name || item.food?.food_name || "Item";
@@ -61,29 +62,29 @@ export default function CheckoutCartReview() {
               />
               <View className="flex-1 mx-3">
                 {item.is_addon ? (
-                  <Text
+                  <AppText
                     className="text-[10px] font-bold uppercase mb-0.5"
                     style={{ color: COLORS.subtext }}
                   >
                     Add-on
-                  </Text>
+                  </AppText>
                 ) : null}
-                <Text
+                <AppText
                   className="text-sm font-semibold text-gray-900"
                   numberOfLines={2}
                 >
                   {name}
-                </Text>
-                <Text className="mt-0.5 text-xs text-gray-500">
+                </AppText>
+                <AppText className="mt-0.5 text-xs text-gray-500">
                   {qty} × P{unit.toFixed(2)}
-                </Text>
+                </AppText>
               </View>
-              <Text
+              <AppText
                 className="text-sm font-bold"
                 style={{ color: COLORS.primary }}
               >
                 P{total.toFixed(2)}
-              </Text>
+              </AppText>
             </View>
           );
         })}

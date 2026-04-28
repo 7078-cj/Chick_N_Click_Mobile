@@ -1,4 +1,5 @@
 import { CART_LIST_SCROLL_INSET } from '@/constants/theme';
+import { AppText } from '@/components/typography';
 import { useCart } from '@/hooks/useCart';
 import { getAddonParentFoodId } from '@/utils/cartLineage';
 import React, { useState } from 'react';
@@ -7,7 +8,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
   TouchableOpacity,
   UIManager,
   View
@@ -103,9 +103,9 @@ export default function CartList() {
               onPress={removeSelected}
               className="self-end px-4 py-2 mb-2 bg-red-500 rounded-full"
             >
-              <Text className="text-xs font-semibold text-white">
+              <AppText className="text-xs font-semibold text-white">
                 Remove Selected ({selectedItems.length})
-              </Text>
+              </AppText>
             </TouchableOpacity>
           )}
 
@@ -145,11 +145,11 @@ export default function CartList() {
                           transform: [{ rotate: isCollapsed ? '0deg' : '90deg' }],
                         }}
                       >
-                        <Text className="text-orange-500 text-xs font-bold">›</Text>
+                        <AppText className="text-orange-500 text-xs font-bold">›</AppText>
                       </View>
-                      <Text className="text-xs text-gray-500 font-medium">
+                      <AppText className="text-xs text-gray-500 font-medium">
                         {addons.length} add-on{addons.length > 1 ? 's' : ''}
-                      </Text>
+                      </AppText>
                     </Pressable>
                   )}
 
@@ -179,10 +179,10 @@ export default function CartList() {
         </>
       ) : (
         <View className="items-center justify-center flex-1 px-6">
-          <Text className="text-lg font-semibold text-gray-700">Cart is empty</Text>
-          <Text className="mt-1 text-sm text-center text-gray-500">
+          <AppText className="text-lg font-semibold text-gray-700">Cart is empty</AppText>
+          <AppText className="mt-1 text-sm text-center text-gray-500">
             Add food from the menu to start your order.
-          </Text>
+          </AppText>
         </View>
       )}
     </View>

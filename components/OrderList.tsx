@@ -1,7 +1,8 @@
+import { AppText } from "@/components/typography";
 import { TAB_BAR_SCROLL_INSET } from "@/constants/theme";
 import { useOrder } from "@/hooks/useOrder";
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import OrderCard from "./OrderCard";
 
 export default function OrdersList() {
@@ -11,7 +12,7 @@ export default function OrdersList() {
     return (
       <View className="items-center justify-center flex-1">
         <ActivityIndicator size="large" color="#FD5602" />
-        <Text className="mt-2 text-sm text-gray-500">Loading orders...</Text>
+        <AppText className="mt-2 text-sm text-gray-500">Loading orders...</AppText>
       </View>
     );
   }
@@ -35,10 +36,10 @@ export default function OrdersList() {
         </ScrollView>
       ) : (
         <View className="items-center justify-center flex-1 px-6">
-          <Text className="text-lg font-semibold text-gray-700">No orders yet</Text>
-          <Text className="mt-1 text-sm text-center text-gray-500">
+          <AppText className="text-lg font-semibold text-gray-700">No orders yet</AppText>
+          <AppText className="mt-1 text-sm text-center text-gray-500">
             Your placed orders will appear here.
-          </Text>
+          </AppText>
         </View>
       )}
     </View>

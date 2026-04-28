@@ -1,10 +1,11 @@
+import { AppText } from "@/components/typography";
 import { COLORS } from "@/constants/theme";
 import AuthContext from "@/contexts/AuthContext";
 import { useNotification } from "@/hooks/useNotification";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 
 export default function Header() {
   const auth = useContext(AuthContext);
@@ -58,7 +59,7 @@ export default function Header() {
                 paddingHorizontal: 3,
               }}
             >
-              <Text
+              <AppText
                 style={{
                   color: "white",
                   fontSize: 10,
@@ -66,7 +67,7 @@ export default function Header() {
                 }}
               >
                 {unreadCount > 9 ? "9+" : unreadCount}
-              </Text>
+              </AppText>
             </View>
           )}
         </TouchableOpacity>

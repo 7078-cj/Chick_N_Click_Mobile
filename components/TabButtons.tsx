@@ -1,9 +1,10 @@
+import { AppText } from "@/components/typography";
 import { COLORS } from "@/constants/theme";
 import { useTab } from "@/hooks/useTab";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Href, router } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 export type TabButtonsProps = {
   label: string;
@@ -38,13 +39,14 @@ export default function TabButtons({ label, destination }: TabButtonsProps) {
         }`}
       >
         <Icon size={22} color={isActive ? COLORS.primary : inactive} />
-        <Text
+        <AppText
+          face="condensed"
           className={`text-[10px] mt-1 ${
             isActive ? "font-semibold text-brand" : "text-gray-500"
           }`}
         >
           {label}
-        </Text>
+        </AppText>
       </View>
     </Pressable>
   );

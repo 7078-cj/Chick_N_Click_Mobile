@@ -1,5 +1,6 @@
+import { AppText } from "@/components/typography";
 import React from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, TouchableOpacity, View } from "react-native";
 
 type RequestStatusModalProps = {
   visible: boolean;
@@ -30,13 +31,13 @@ export default function RequestStatusModal({
       <View className="items-center justify-center flex-1 px-6 bg-black/40">
         <View className="w-full p-5 bg-white shadow rounded-2xl">
           <View className={`w-10 h-1.5 rounded-full mb-4 ${accentColor}`} />
-          <Text className="mb-2 text-lg font-bold text-gray-900">{title}</Text>
-          <Text className="mb-5 text-sm leading-5 text-gray-600">{message}</Text>
+          <AppText className="mb-2 text-lg font-bold text-gray-900">{title}</AppText>
+          <AppText className="mb-5 text-sm leading-5 text-gray-600">{message}</AppText>
           <TouchableOpacity
             onPress={onClose}
             className={`items-center py-3 rounded-xl ${accentColor}`}
           >
-            <Text className="font-semibold text-white">{buttonText}</Text>
+            <AppText className="font-semibold text-white">{buttonText}</AppText>
           </TouchableOpacity>
         </View>
       </View>

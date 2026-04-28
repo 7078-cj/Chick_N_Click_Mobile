@@ -1,8 +1,9 @@
+import { AppText } from "@/components/typography";
 import { useFood } from "@/hooks/useFood";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import FloatingCart from "./FloatingCart";
 import FoodList from "./FoodList";
 
@@ -24,10 +25,10 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
         style={{ borderBottomColor: "rgba(0, 0, 0, 0.06)" }}
       >
         <View>
-          <Text className="text-xl font-extrabold text-gray-900">{categoryName}</Text>
-          <Text className="text-xs text-gray-600">
+          <AppText className="text-xl font-extrabold text-gray-900">{categoryName}</AppText>
+          <AppText className="text-xs text-gray-600">
             {foods.length} item{foods.length !== 1 ? "s" : ""} found
-          </Text>
+          </AppText>
         </View>
 
         <TouchableOpacity
@@ -43,9 +44,9 @@ export default function CategoryFoodModal({ categoryName, onClose }: Props) {
       {foods.length === 0 ? (
         <View className="items-center justify-center flex-1 px-6">
           <Ionicons name="restaurant-outline" size={36} color="#9ca3af" />
-          <Text className="mt-3 text-center text-gray-500">
+          <AppText className="mt-3 text-center text-gray-500">
             No foods found in this category
-          </Text>
+          </AppText>
         </View>
       ) : (
         <FoodList />

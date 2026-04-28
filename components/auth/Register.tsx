@@ -1,8 +1,10 @@
 import { registerRequest } from "@/api/auth";
+import T_A_C_Modal from "@/components/T_A_C_Modal";
+import { AppText } from "@/components/typography";
 import AuthContext from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
 import LocationSelector from "../LocationSelector";
 import MapModal from "../MapModal";
 
@@ -61,7 +63,7 @@ function Field({
         {/* meow */}
       </View>
       {error ? (
-        <Text className="mt-1 text-xs text-red-500">{error}</Text>
+        <AppText className="mt-1 text-xs text-red-500">{error}</AppText>
       ) : null}
     </View>
   );
@@ -94,6 +96,7 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [openedMap, setOpenedMap] = useState(false)
@@ -204,9 +207,9 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
     <View className="w-full">
       {errors.general ? (
         <View className="px-3 py-2 mb-3 bg-red-100 border border-red-300 rounded-lg">
-          <Text className="text-sm text-center text-red-600">
+          <AppText className="text-sm text-center text-red-600">
             {errors.general}
-          </Text>
+          </AppText>
         </View>
       ) : null}
 
@@ -279,7 +282,7 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
       {/* Phone — digits only, strip non-numeric on input (mirrors web onInput) */}
       <View className="flex-row gap-2 mb-2.5">
         <View className="justify-center px-3 py-3 bg-white border border-gray-200 rounded-xl">
-          <Text className="text-sm text-gray-900">+63</Text>
+          <AppText className="text-sm text-gray-900">+63</AppText>
         </View>
         <View className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl">
           <TextInput
@@ -294,7 +297,7 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
         </View>
       </View>
       {errors.phone ? (
-        <Text className="mb-2 -mt-1 text-xs text-red-500">{errors.phone}</Text>
+        <AppText className="mb-2 -mt-1 text-xs text-red-500">{errors.phone}</AppText>
       ) : null}
 
 
@@ -302,14 +305,14 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
       {/* <TouchableOpacity className="flex flex-col justify-center items-center"
         onPress={() => setOpenedMap(true)}
       >
-        <Text className="mb-2 text-xs italic text-center text-gray-600">
+        <AppText className="mb-2 text-xs italic text-center text-gray-600">
           {location.full ? location.full: "Tap to change Location"}
-        </Text>
-        <Text>
+        </AppText>
+        <AppText>
           {
             location.full && "Tap to change Location"
           }
-        </Text>
+        </AppText>
       </TouchableOpacity> */}
       <LocationSelector
         location = {location}
@@ -317,34 +320,47 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
       />
 
       {errors.location ? (
-        <Text className="mb-2 text-xs text-red-500">{errors.location}</Text>
+        <AppText className="mb-2 text-xs text-red-500">{errors.location}</AppText>
       ) : (
         <View className="mb-2" />
       )}
 
-      {/* Terms */}
-      <TouchableOpacity
-        onPress={() => setAgreedToTerms(!agreedToTerms)}
-        className="flex-row items-start mb-1"
-      >
-        <View
-          className={`w-4 h-4 rounded border mt-0.5 mr-2 items-center justify-center flex-shrink-0 ${agreedToTerms ? "bg-orange-400 border-orange-400" : "bg-white border-gray-300"}`}
+      {/* Terms — checkbox only toggles agreement; links open Terms & Conditions */}
+      <View className="mb-1 flex-row items-start">
+        <TouchableOpacity
+          onPress={() => setAgreedToTerms(!agreedToTerms)}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: agreedToTerms }}
+          className="mr-2 mt-0.5"
         >
-          {agreedToTerms && (
-            <Ionicons name="checkmark" size={11} color="#fff" />
-          )}
-        </View>
-        <Text className="flex-1 text-xs leading-4 text-gray-500">
+          <View
+            className={`h-4 w-4 items-center justify-center rounded border ${agreedToTerms ? "border-orange-400 bg-orange-400" : "border-gray-300 bg-white"}`}
+          >
+            {agreedToTerms ? (
+              <Ionicons name="checkmark" size={11} color="#fff" />
+            ) : null}
+          </View>
+        </TouchableOpacity>
+        <AppText className="flex-1 text-xs leading-4 text-gray-500">
           By signing up, you agree to our{" "}
-          <Text className="font-semibold text-orange-400">
+          <AppText
+            onPress={() => setTermsOpen(true)}
+            className="font-semibold text-orange-400"
+          >
             Terms of Services
-          </Text>{" "}
+          </AppText>{" "}
           and{" "}
-          <Text className="font-semibold text-orange-400">Privacy Policy</Text>
-        </Text>
-      </TouchableOpacity>
+          <AppText
+            onPress={() => setTermsOpen(true)}
+            className="font-semibold text-orange-400"
+          >
+            Privacy Policy
+          </AppText>
+        </AppText>
+      </View>
       {errors.terms ? (
-        <Text className="mb-3 text-xs text-red-500">{errors.terms}</Text>
+        <AppText className="mb-3 text-xs text-red-500">{errors.terms}</AppText>
       ) : (
         <View className="mb-4" />
       )}
@@ -355,19 +371,21 @@ export default function Register({ onGoToLogin, setVisible }: RegisterProps) {
         disabled={loading || !location.lat}
         className={`rounded-full py-4 items-center mb-5 ${loading || !location.lat ? "bg-orange-300" : "bg-orange-400"}`}
       >
-        <Text className="text-base font-bold text-white">
+        <AppText className="text-base font-bold text-white">
           {loading ? "Signing up..." : "Sign Up"}
-        </Text>
+        </AppText>
       </TouchableOpacity>
 
       {/* Login redirect */}
       <View className="flex-row justify-center">
-        <Text className="text-sm text-gray-500">Already have an account? </Text>
+        <AppText className="text-sm text-gray-500">Already have an account? </AppText>
         <TouchableOpacity onPress={onGoToLogin}>
-          <Text className="text-sm font-semibold text-orange-400">Log In</Text>
+          <AppText className="text-sm font-semibold text-orange-400">Log In</AppText>
         </TouchableOpacity>
       </View>
       
+
+      <T_A_C_Modal opened={termsOpen} setOpened={setTermsOpen} />
 
       <MapModal
         opened={openedMap}
