@@ -4,10 +4,14 @@ import { resolveStorageOrRemoteUrl } from "@/utils/resolveMediaUrl";
 import React from "react";
 import {
   Dimensions,
+  KeyboardAvoidingView,
   Modal,
-  Pressable,
+  Platform,
   ScrollView,
+  StatusBar,
+  StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -37,9 +41,11 @@ export default function OrderDetailModal({
   order,
   setOpened,
 }: OrderDetailModalProps) {
-  if (!order) return null;
-
   const { height } = Dimensions.get("window");
+  const statusBarHeight = StatusBar.currentHeight ?? 0;
+  const sheetMaxHeight = height - statusBarHeight - 24;
+
+  if (!order) return null;
 
   // Coordinates
   const latitude = Number(order.latitude);
@@ -70,35 +76,51 @@ export default function OrderDetailModal({
       visible={opened}
       onRequestClose={() => setOpened(false)}
       statusBarTranslucent
+      hardwareAccelerated
     >
-      {/* Backdrop — tap to dismiss */}
-      <Pressable
-        className="flex-1 justify-end bg-black/60"
-        onPress={() => setOpened(false)}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Sheet */}
-        <Pressable
-          className="w-full bg-white rounded-t-3xl overflow-hidden"
-          style={{ maxHeight: height * 0.93 }}
-          onPress={(e) => e.stopPropagation()}
-        >
+        {/*
+          Backdrop: TouchableWithoutFeedback wraps a plain View that fills the
+          screen. This is intentionally NOT a parent of the sheet — the sheet
+          sits in absolute position above it. This avoids the core scroll bug:
+          a Pressable/TouchableOpacity ancestor captures touch start events for
+          its own gesture recognizer, which starves the ScrollView of the
+          scroll gesture on Android.
+        */}
+        <TouchableWithoutFeedback onPress={() => setOpened(false)}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+
+        {/* Sheet — absolute, bottom-anchored, NOT inside the backdrop touch */}
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
           {/* Drag handle */}
-          <View className="items-center pt-3 pb-1">
-            <View className="w-10 h-1 rounded-full bg-gray-200" />
+          <View style={styles.handleContainer}>
+            <View style={styles.handle} />
           </View>
 
-          {/* Header */}
+          {/* Header — fixed above scroll */}
           <OrderHeader
             order={order}
             isDelivery={isDelivery}
             onClose={() => setOpened(false)}
           />
 
-          {/* Scrollable body */}
+          {/*
+            ScrollView is a direct child of the sheet View — no Pressable
+            wrapper around it. Critical on Android: any Pressable ancestor
+            intercepts touch events for its own gesture detection, which
+            prevents the ScrollView from cleanly receiving scroll gestures.
+          */}
           <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ padding: 20, paddingBottom: 36 }}
-            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            overScrollMode="never"
+            bounces={false}
           >
             {isDelivery ? (
               <DeliverySection
@@ -131,15 +153,76 @@ export default function OrderDetailModal({
 
             <TouchableOpacity
               onPress={() => setOpened(false)}
-              className="items-center py-4 rounded-2xl bg-orange-500 active:opacity-80"
+              activeOpacity={0.8}
+              style={styles.doneButton}
             >
-              <AppText className="text-base font-extrabold text-white tracking-wide">
-                Done
-              </AppText>
+              <AppText style={styles.doneText}>Done</AppText>
             </TouchableOpacity>
           </ScrollView>
-        </Pressable>
-      </Pressable>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+//
+// StyleSheet (not NativeWind className) for all structural/layout rules.
+// Tailwind class resolution can be unreliable for flex/position/overflow
+// values that directly affect scroll and gesture behaviour.
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.55)",
+  },
+
+  sheet: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    overflow: "hidden",
+    flexDirection: "column",
+  },
+
+  handleContainer: {
+    alignItems: "center",
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+
+  handle: {
+    width: 40,
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: "#e5e7eb",
+  },
+
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
+  doneButton: {
+    alignItems: "center",
+    paddingVertical: 16,
+    borderRadius: 18,
+    backgroundColor: "#f97316",
+    marginTop: 4,
+  },
+
+  doneText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#ffffff",
+    letterSpacing: 0.3,
+  },
+});

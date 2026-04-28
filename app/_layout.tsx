@@ -29,12 +29,16 @@ export default function RootLayout({
               <CartProvider>
                 <AddOnProvider>
                   <AppBootstrapGate>
+
+                    {/* ✅ App UI */}
                     <SafeAreaView className="flex-1 flex-col bg-white justify-start">
                       <Header />
                       <Stack screenOptions={{ headerShown: false }} />
                       <Tabs />
-                      <ToastRoot />
                     </SafeAreaView>
+
+                    <ToastRoot />
+
                   </AppBootstrapGate>
                 </AddOnProvider>
               </CartProvider>
